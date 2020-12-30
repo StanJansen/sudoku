@@ -84,10 +84,8 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         $gridSize = $sudoku->getGrid()->getSize();
         $subGridSize = $sudoku->getGrid()->getSubGridSize();
         $highestAnswer = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
-        $possibleAnswers = [];
-        for ($answer = 1; $answer <= $highestAnswer; $answer++) {
-            $possibleAnswers[$answer] = $answer;
-        }
+        $possibleAnswers = range(1,$highestAnswer);
+        $possibleAnswers = array_combine($possibleAnswers, $possibleAnswers); // Make sure the key is the same as the value for unsetting.
 
         // Generate all subgrids.
         $maxAttempts = ceil(($gridSize->getColumnCount() * $gridSize->getRowCount()) / ($subGridSize->getColumnCount() * $subGridSize->getRowCount()));
