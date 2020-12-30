@@ -10,11 +10,6 @@ before_script:
 stages:
     - phpunit
 
-lint:
-    stage: lint
-    script:
-        - composer lint
-
 phpunit:
     stage: phpunit
     before_script:
