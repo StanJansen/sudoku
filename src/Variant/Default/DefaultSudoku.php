@@ -18,16 +18,25 @@ class DefaultSudoku implements SudokuInterface
         protected Grid $grid,
     ) {}
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getVariantClassName(): string
     {
         return DefaultSudokuVariant::class;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getGrid(): Grid
     {
         return $this->grid;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function addAnswer(int $row, int $column, int $answer): void
     {
         // Initialize the row array if it's not set yet.
@@ -38,6 +47,9 @@ class DefaultSudoku implements SudokuInterface
         $this->answers[$row][$column] = $answer;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getAnswer(int $row, int $column): ?int
     {
         return $this->answers[$row][$column] ?? null;

@@ -13,4 +13,14 @@ interface SudokuInterface extends BelongsToSudokuVariantInterface
      * The grid containing the row and column base information.
      */
     public function getGrid(): Grid;
+
+    /**
+     * Sets the answer for the given row and column.
+     */
+    public function addAnswer(int $row, int $column, int $answer): void;
+
+    /**
+     * Returns the answer for the sudoku for the given row and column, returns null if the answer is not set.
+     */
+    public function getAnswer(int $row, int $column): ?int;
 }

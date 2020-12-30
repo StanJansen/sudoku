@@ -8,11 +8,17 @@ use Stanjan\Sudoku\SudokuVariantInterface;
 
 class DefaultSudokuVariant implements SudokuVariantInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getGenerator(): SudokuGeneratorInterface
     {
         return new DefaultSudokuGenerator();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSolver(): SudokuSolverInterface
     {
         return new DefaultSudokuSolver();

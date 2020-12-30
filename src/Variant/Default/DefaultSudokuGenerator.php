@@ -17,16 +17,25 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
      */
     protected int $retryAnswersLimit = self::DEFAULT_RETRY_ANSWERS_LIMIT;
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getVariantClassName(): string
     {
         return DefaultSudokuVariant::class;
     }
 
+    /**
+     * Overrides the retry answers limit.
+     */
     public function setRetryAnswersLimit(int $retryAnswersLimit): void
     {
         $this->retryAnswersLimit = $retryAnswersLimit;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function generate(): SudokuInterface
     {
         $sudoku = $this->createBaseSudoku();
