@@ -1,0 +1,37 @@
+{
+    "name": "stanjan/sudoku",
+    "type": "library",
+    "description": "Sudoku generators and solvers.",
+    "keywords": ["Sudoku", "Generator", "Solver"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Stan Jansen",
+            "email": "stanjan@live.nl"
+        }
+    ],
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Stanjan\\Sudoku\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stanjan\\Sudoku\\Tests\\": "tests"
+        }
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    }
+}
