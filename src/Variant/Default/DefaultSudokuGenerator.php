@@ -45,7 +45,8 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         $attempt = 0;
         while ($answered !== true) {
             // Throw an error if generating the answers fails more than the limit.
-            if ($attempt++ > $this->retryAnswersLimit) {
+            $attempt++;
+            if ($attempt > $this->retryAnswersLimit) {
                 throw new GeneratorException(sprintf('Generator retry limit of %d exceeded.', $this->retryAnswersLimit));
             }
 

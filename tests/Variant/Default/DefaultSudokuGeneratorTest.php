@@ -3,6 +3,7 @@
 namespace Stanjan\Sudoku\Tests\Variant\Default;
 
 use PHPUnit\Framework\TestCase;
+use Stanjan\Sudoku\Exception\GeneratorException;
 use Stanjan\Sudoku\Variant\Default\DefaultSudoku;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuGenerator;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
@@ -78,5 +79,17 @@ final class DefaultSudokuGeneratorTest extends TestCase
                 }
             }
         }
+    }
+    
+    public function testGenerateOverAnswersLimit(): void
+    {
+        $generator = new DefaultSudokuGenerator();
+        
+        $generator->setRetryAnswersLimit(0);
+        
+        $this->expectException(GeneratorException::class);
+        $this->expectExceptionMessage('Generator retry limit of 0 exceeded.');
+
+        $generator->generate();
     }
 }
