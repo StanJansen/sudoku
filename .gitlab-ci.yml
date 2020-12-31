@@ -8,11 +8,15 @@ before_script:
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
 
 stages:
-    - phpunit
+    - analyse
+    - test
 
-phpunit:
-    stage: phpunit
-    before_script:
-        - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+analyse:
+    stage: analyse
+    script:
+        - vendor/bin/phpstan analyse
+
+test:
+    stage: test
     script:
         - vendor/bin/phpunit --coverage-text --colors=never tests

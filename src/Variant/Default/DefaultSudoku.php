@@ -10,7 +10,7 @@ class DefaultSudoku implements SudokuInterface
     /**
      * The answers to this sudoku. Integer-indexed array (representing rows) containing an integer-indexed array (representing the columns per row).
      *
-     * @var array<int, array<int, int>
+     * @var array<int, array<int, int>>
      */
     protected array $answers;
 

@@ -127,7 +127,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
                             }
 
                             // Pick a random answer.
-                            $answer = array_rand($currentPossibleAnswers);
+                            $answer = (int) array_rand($currentPossibleAnswers);
 
                             $sudoku->setAnswer($row, $column, $answer);
                         }

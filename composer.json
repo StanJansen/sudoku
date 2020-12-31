@@ -16,6 +16,7 @@
         "php": "^8.0"
     },
     "require-dev": {
+        "phpstan/phpstan": "^0.12.64",
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {
