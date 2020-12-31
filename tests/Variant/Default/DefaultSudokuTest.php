@@ -41,7 +41,7 @@ final class DefaultSudokuTest extends TestCase
 
         $this->assertNull($sudoku->getAnswer(1, 2));
 
-        $sudoku->addAnswer(1, 2, 6);
+        $sudoku->setAnswer(1, 2, 6);
 
         $this->assertSame(6, $sudoku->getAnswer(1, 2));
     }

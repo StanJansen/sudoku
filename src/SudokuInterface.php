@@ -17,7 +17,7 @@ interface SudokuInterface extends BelongsToSudokuVariantInterface
     /**
      * Sets the answer for the given row and column.
      */
-    public function addAnswer(int $row, int $column, int $answer): void;
+    public function setAnswer(int $row, int $column, int $answer): void;
 
     /**
      * Returns the answer for the sudoku for the given row and column, returns null if the answer is not set.

@@ -87,14 +87,14 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         $possibleAnswers = range(1,$highestAnswer);
         $possibleAnswers = array_combine($possibleAnswers, $possibleAnswers); // Make sure the key is the same as the value for unsetting.
 
-        // Generate all subgrids.
+        // Generate all subgrids, base the max amount of generation attempts on the grid and subgrid size.
         $maxAttempts = ceil(($gridSize->getColumnCount() * $gridSize->getRowCount()) / ($subGridSize->getColumnCount() * $subGridSize->getRowCount()));
         for ($subGridHorizontal = 1; $subGridHorizontal <= $sudoku->getGrid()->getHorizontalSubGridCount(); $subGridHorizontal++) {
             $horizontalOffset = $subGridSize->getColumnCount() * $subGridHorizontal - $subGridSize->getColumnCount();
             for ($subGridVertical = 1; $subGridVertical <= $sudoku->getGrid()->getVerticalSubGridCount(); $subGridVertical++) {
                 $verticalOffset = $subGridSize->getRowCount() * $subGridVertical - $subGridSize->getRowCount();
 
-                // Attempt building the subgrid.
+                // Attempt building the subgrid. We build subgrid by subgrid instead of row by row as it's more likely to succeed.
                 $attempt = 1;
                 while ($attempt < $maxAttempts) {
                     for ($row = 1 + $verticalOffset; $row <= $subGridSize->getRowCount() + $verticalOffset; $row++) {
@@ -129,7 +129,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
                             // Pick a random answer.
                             $answer = array_rand($currentPossibleAnswers);
 
-                            $sudoku->addAnswer($row, $column, $answer);
+                            $sudoku->setAnswer($row, $column, $answer);
                         }
                     }
 

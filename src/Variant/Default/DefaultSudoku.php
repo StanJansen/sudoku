@@ -37,7 +37,7 @@ class DefaultSudoku implements SudokuInterface
     /**
      * {@inheritdoc}
      */
-    public function addAnswer(int $row, int $column, int $answer): void
+    public function setAnswer(int $row, int $column, int $answer): void
     {
         // Initialize the row array if it's not set yet.
         if (!isset($this->answers[$row])) {
