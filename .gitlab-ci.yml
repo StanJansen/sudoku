@@ -1,4 +1,4 @@
-image: jitesoft/composer:8
+image: webdevops/php-dev:8.0-alpine
 
 cache:
     paths:
