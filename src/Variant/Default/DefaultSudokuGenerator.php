@@ -13,9 +13,9 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
     const DEFAULT_RETRY_ANSWERS_LIMIT = 25_000;
 
     /**
-     * The amount of times the generator will try to generate the answers of the sudoku.
+     * The amount of times the generator will try to generate the solutions of the sudoku.
      */
-    protected int $retryAnswersLimit = self::DEFAULT_RETRY_ANSWERS_LIMIT;
+    protected int $retrySolutionsLimit = self::DEFAULT_RETRY_ANSWERS_LIMIT;
 
     /**
      * {@inheritdoc}
@@ -26,11 +26,11 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
     }
 
     /**
-     * Overrides the retry answers limit.
+     * Overrides the retry solutions limit.
      */
-    public function setRetryAnswersLimit(int $retryAnswersLimit): void
+    public function setRetrySolutionsLimit(int $retrySolutionsLimit): void
     {
-        $this->retryAnswersLimit = $retryAnswersLimit;
+        $this->retrySolutionsLimit = $retrySolutionsLimit;
     }
 
     /**
@@ -40,19 +40,19 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
     {
         $sudoku = $this->createBaseSudoku();
 
-        // Generate the answers for the sudoku, try until succeeded or the limit is reached.
-        $answered = false;
+        // Generate the solutions for the sudoku, try until succeeded or the limit is reached.
+        $solutioned = false;
         $attempt = 0;
-        while ($answered !== true) {
-            // Throw an error if generating the answers fails more than the limit.
+        while ($solutioned !== true) {
+            // Throw an error if generating the solutions fails more than the limit.
             $attempt++;
-            if ($attempt > $this->retryAnswersLimit) {
-                throw new GeneratorException(sprintf('Generator retry limit of %d exceeded.', $this->retryAnswersLimit));
+            if ($attempt > $this->retrySolutionsLimit) {
+                throw new GeneratorException(sprintf('Generator retry limit of %d exceeded.', $this->retrySolutionsLimit));
             }
 
             try {
-                $this->generateAnswers($sudoku);
-                $answered = true;
+                $this->generateSolutions($sudoku);
+                $solutioned = true;
             } catch (GeneratorException) {
                 // The generation failed.
             }
@@ -75,18 +75,18 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
     }
 
     /**
-     * Generates and sets all answers for the given sudoku.
+     * Generates and sets all solutions for the given sudoku.
      *
-     * @throws GeneratorException When the answers generation attempt failed.
+     * @throws GeneratorException When the solutions generation attempt failed.
      */
-    protected function generateAnswers(DefaultSudoku $sudoku): void
+    protected function generateSolutions(DefaultSudoku $sudoku): void
     {
-        // Index all possible answers.
+        // Index all possible solutions.
         $gridSize = $sudoku->getGrid()->getSize();
         $subGridSize = $sudoku->getGrid()->getSubGridSize();
-        $highestAnswer = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
-        $possibleAnswers = range(1,$highestAnswer);
-        $possibleAnswers = array_combine($possibleAnswers, $possibleAnswers); // Make sure the key is the same as the value for unsetting.
+        $highestSolution = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
+        $possibleSolutions = range(1,$highestSolution);
+        $possibleSolutions = array_combine($possibleSolutions, $possibleSolutions); // Make sure the key is the same as the value for unsetting.
 
         // Generate all subgrids, base the max amount of generation attempts on the grid and subgrid size.
         $maxAttempts = ceil(($gridSize->getColumnCount() * $gridSize->getRowCount()) / ($subGridSize->getColumnCount() * $subGridSize->getRowCount()));
@@ -100,37 +100,37 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
                 while ($attempt < $maxAttempts) {
                     for ($row = 1 + $verticalOffset; $row <= $subGridSize->getRowCount() + $verticalOffset; $row++) {
                         for ($column = 1 + $horizontalOffset; $column <= $subGridSize->getColumnCount() + $horizontalOffset; $column++) {
-                            // Clone all possible answers.
-                            $currentPossibleAnswers = $possibleAnswers;
+                            // Clone all possible solutions.
+                            $currentPossibleSolutions = $possibleSolutions;
 
-                            // Remove previous answers from the same row.
+                            // Remove previous solutions from the same row.
                             for ($previousColumn = 1; $previousColumn < $column; $previousColumn++) {
-                                unset($currentPossibleAnswers[$sudoku->getAnswer($row, $previousColumn)]);
+                                unset($currentPossibleSolutions[$sudoku->getSolution($row, $previousColumn)]);
                             }
 
-                            // Remove previous answers from the same column index.
+                            // Remove previous solutions from the same column index.
                             for ($previousRow = 1; $previousRow < $row; $previousRow++) {
-                                unset($currentPossibleAnswers[$sudoku->getAnswer($previousRow, $column)]);
+                                unset($currentPossibleSolutions[$sudoku->getSolution($previousRow, $column)]);
                             }
 
-                            // Remove previous answers from the same subgrid.
+                            // Remove previous solutions from the same subgrid.
                             $previousColumnBase = $column - ($column - 1) % $subGridSize->getColumnCount();
                             for ($previousRow = $row - ($row - 1) % $subGridSize->getRowCount(); $previousRow <= $row; $previousRow++) {
                                 for ($previousColumn = $previousColumnBase; $previousColumn < $previousColumnBase + $subGridSize->getColumnCount(); $previousColumn++) {
-                                    unset($currentPossibleAnswers[$sudoku->getAnswer($previousRow, $previousColumn)]);
+                                    unset($currentPossibleSolutions[$sudoku->getSolution($previousRow, $previousColumn)]);
                                 }
                             }
 
-                            if (count($currentPossibleAnswers) === 0) {
-                                // There are no possible answers, retry generating the subgrid.
+                            if (count($currentPossibleSolutions) === 0) {
+                                // There are no possible solutions, retry generating the subgrid.
                                 $attempt++;
                                 continue 3;
                             }
 
-                            // Pick a random answer.
-                            $answer = (int) array_rand($currentPossibleAnswers);
+                            // Pick a random solution.
+                            $solution = (int) array_rand($currentPossibleSolutions);
 
-                            $sudoku->setAnswer($row, $column, $answer);
+                            $sudoku->setSolution($row, $column, $solution);
                         }
                     }
 

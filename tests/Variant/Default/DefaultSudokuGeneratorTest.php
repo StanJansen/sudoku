@@ -35,57 +35,57 @@ final class DefaultSudokuGeneratorTest extends TestCase
         $this->assertSame(3, $subGridSize->getRowCount());
         $this->assertSame(3, $subGridSize->getColumnCount());
 
-        // Index the possible answers.
-        $highestAnswer = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
-        $possibleAnswers = range(1,$highestAnswer);
+        // Index the possible solutions.
+        $highestSolution = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
+        $possibleSolutions = range(1,$highestSolution);
 
-        // Make sure every column contains all possible answers.
+        // Make sure every column contains all possible solutions.
         for ($row = 1; $row <= $gridSize->getRowCount(); $row++) {
-            $columnAnswers = [];
+            $columnSolutions = [];
             for ($column = 1; $column <= $gridSize->getColumnCount(); $column++) {
-                $columnAnswers[] = $sudoku->getAnswer($row, $column);
+                $columnSolutions[] = $sudoku->getSolution($row, $column);
             }
 
-            sort($columnAnswers, SORT_NUMERIC);
-            $this->assertSame($possibleAnswers, $columnAnswers);
+            sort($columnSolutions, SORT_NUMERIC);
+            $this->assertSame($possibleSolutions, $columnSolutions);
         }
 
-        // Make sure every row contains all possible answers.
+        // Make sure every row contains all possible solutions.
         for ($column = 1; $column <= $gridSize->getRowCount(); $column++) {
-            $rowAnswers = [];
+            $rowSolutions = [];
             for ($row = 1; $row <= $gridSize->getColumnCount(); $row++) {
-                $rowAnswers[] = $sudoku->getAnswer($column, $row);
+                $rowSolutions[] = $sudoku->getSolution($column, $row);
             }
 
-            sort($rowAnswers, SORT_NUMERIC);
-            $this->assertSame($possibleAnswers, $rowAnswers);
+            sort($rowSolutions, SORT_NUMERIC);
+            $this->assertSame($possibleSolutions, $rowSolutions);
         }
 
-        // Make sure every subgrid contains all possible answers.
+        // Make sure every subgrid contains all possible solutions.
         for ($subGridHorizontal = 1; $subGridHorizontal <= $sudoku->getGrid()->getHorizontalSubGridCount(); $subGridHorizontal++) {
             $horizontalOffset = $subGridSize->getColumnCount() * $subGridHorizontal - $subGridSize->getColumnCount();
             for ($subGridVertical = 1; $subGridVertical <= $sudoku->getGrid()->getVerticalSubGridCount(); $subGridVertical++) {
                 $verticalOffset = $subGridSize->getRowCount() * $subGridVertical - $subGridSize->getRowCount();
                 for ($row = 1 + $verticalOffset; $row <= $subGridSize->getRowCount() + $verticalOffset; $row++) {
                     for ($column = 1 + $horizontalOffset; $column <= $subGridSize->getColumnCount() + $horizontalOffset; $column++) {
-                        $subGridAnswers = [];
+                        $subGridSolutions = [];
                         for ($row = 1; $row <= $gridSize->getColumnCount(); $row++) {
-                            $subGridAnswers[] = $sudoku->getAnswer($column, $row);
+                            $subGridSolutions[] = $sudoku->getSolution($column, $row);
                         }
 
-                        sort($subGridAnswers, SORT_NUMERIC);
-                        $this->assertSame($possibleAnswers, $subGridAnswers);
+                        sort($subGridSolutions, SORT_NUMERIC);
+                        $this->assertSame($possibleSolutions, $subGridSolutions);
                     }
                 }
             }
         }
     }
     
-    public function testGenerateOverAnswersLimit(): void
+    public function testGenerateOverSolutionsLimit(): void
     {
         $generator = new DefaultSudokuGenerator();
         
-        $generator->setRetryAnswersLimit(0);
+        $generator->setRetrySolutionsLimit(0);
         
         $this->expectException(GeneratorException::class);
         $this->expectExceptionMessage('Generator retry limit of 0 exceeded.');

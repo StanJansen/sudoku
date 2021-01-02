@@ -15,12 +15,12 @@ interface SudokuInterface extends BelongsToSudokuVariantInterface
     public function getGrid(): Grid;
 
     /**
-     * Sets the answer for the given row and column.
+     * Sets the solution for the given row and column.
      */
-    public function setAnswer(int $row, int $column, int $answer): void;
+    public function setSolution(int $row, int $column, int $solution): void;
 
     /**
-     * Returns the answer for the sudoku for the given row and column, returns null if the answer is not set.
+     * Returns the solution for the sudoku for the given row and column, returns null if the solution is not set.
      */
-    public function getAnswer(int $row, int $column): ?int;
+    public function getSolution(int $row, int $column): ?int;
 }

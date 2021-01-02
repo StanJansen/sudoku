@@ -8,11 +8,11 @@ use Stanjan\Sudoku\SudokuInterface;
 class DefaultSudoku implements SudokuInterface
 {
     /**
-     * The answers to this sudoku. Integer-indexed array (representing rows) containing an integer-indexed array (representing the columns per row).
+     * The solutions to this sudoku. Integer-indexed array (representing rows) containing an integer-indexed array (representing the columns per row).
      *
      * @var array<int, array<int, int>>
      */
-    protected array $answers;
+    protected array $solutions;
 
     public function __construct(
         protected Grid $grid,
@@ -37,21 +37,21 @@ class DefaultSudoku implements SudokuInterface
     /**
      * {@inheritdoc}
      */
-    public function setAnswer(int $row, int $column, int $answer): void
+    public function setSolution(int $row, int $column, int $solution): void
     {
         // Initialize the row array if it's not set yet.
-        if (!isset($this->answers[$row])) {
-            $this->answers[$row] = [];
+        if (!isset($this->solutions[$row])) {
+            $this->solutions[$row] = [];
         }
 
-        $this->answers[$row][$column] = $answer;
+        $this->solutions[$row][$column] = $solution;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAnswer(int $row, int $column): ?int
+    public function getSolution(int $row, int $column): ?int
     {
-        return $this->answers[$row][$column] ?? null;
+        return $this->solutions[$row][$column] ?? null;
     }
 }

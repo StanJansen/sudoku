@@ -30,7 +30,7 @@ final class DefaultSudokuTest extends TestCase
         $this->assertSame($grid, $sudoku->getGrid());
     }
 
-    public function testAnswers(): void
+    public function testSolutions(): void
     {
         $gridSize = new GridSize(1, 2);
         $subGridSize = new GridSize(1, 2);
@@ -39,10 +39,10 @@ final class DefaultSudokuTest extends TestCase
 
         $sudoku = new DefaultSudoku($grid);
 
-        $this->assertNull($sudoku->getAnswer(1, 2));
+        $this->assertNull($sudoku->getSolution(1, 2));
 
-        $sudoku->setAnswer(1, 2, 6);
+        $sudoku->setSolution(1, 2, 6);
 
-        $this->assertSame(6, $sudoku->getAnswer(1, 2));
+        $this->assertSame(6, $sudoku->getSolution(1, 2));
     }
 }
