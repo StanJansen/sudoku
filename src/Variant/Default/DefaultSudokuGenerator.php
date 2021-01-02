@@ -122,7 +122,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
                             }
 
                             if (count($currentPossibleAnswers) === 0) {
-                                // There are no possible answers.
+                                // There are no possible answers, retry generating the subgrid.
                                 $attempt++;
                                 continue 3;
                             }

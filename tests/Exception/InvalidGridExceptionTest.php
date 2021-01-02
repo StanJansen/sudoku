@@ -7,7 +7,7 @@ use Stanjan\Sudoku\Exception\InvalidGridException;
 use Stanjan\Sudoku\Exception\SudokuExceptionInterface;
 
 /**
- * @covers InvalidGridException::class
+ * @covers \Stanjan\Sudoku\Exception\InvalidGridException
  */
 final class InvalidGridExceptionTest extends TestCase
 {

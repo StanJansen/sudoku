@@ -7,7 +7,7 @@ use Stanjan\Sudoku\Exception\InvalidGridException;
 use Stanjan\Sudoku\Grid\GridSize;
 
 /**
- * @covers GridSize::class
+ * @covers \Stanjan\Sudoku\Grid\GridSize
  */
 final class GridSizeTest extends TestCase
 {

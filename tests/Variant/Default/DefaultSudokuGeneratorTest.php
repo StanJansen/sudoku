@@ -9,7 +9,7 @@ use Stanjan\Sudoku\Variant\Default\DefaultSudokuGenerator;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
 
 /**
- * @covers DefaultSudokuGenerator::class
+ * @covers \Stanjan\Sudoku\Variant\Default\DefaultSudokuGenerator
  */
 final class DefaultSudokuGeneratorTest extends TestCase
 {

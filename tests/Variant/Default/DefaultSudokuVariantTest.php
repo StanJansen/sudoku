@@ -8,7 +8,7 @@ use Stanjan\Sudoku\Variant\Default\DefaultSudokuSolver;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
 
 /**
- * @covers DefaultSudokuVariant::class
+ * @covers \Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant
  */
 final class DefaultSudokuVariantTest extends TestCase
 {

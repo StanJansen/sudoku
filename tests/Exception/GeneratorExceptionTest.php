@@ -7,7 +7,7 @@ use Stanjan\Sudoku\Exception\GeneratorException;
 use Stanjan\Sudoku\Exception\SudokuExceptionInterface;
 
 /**
- * @covers GeneratorException::class
+ * @covers \Stanjan\Sudoku\Exception\GeneratorException
  */
 final class GeneratorExceptionTest extends TestCase
 {

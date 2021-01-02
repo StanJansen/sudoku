@@ -8,7 +8,7 @@ use Stanjan\Sudoku\Grid\Grid;
 use Stanjan\Sudoku\Grid\GridSize;
 
 /**
- * @covers Grid::class
+ * @covers \Stanjan\Sudoku\Grid\Grid
  */
 final class GridTest extends TestCase
 {
