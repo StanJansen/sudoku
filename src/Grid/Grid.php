@@ -22,13 +22,15 @@ final class Grid
         if ($this->size->getRowCount() < $this->subGridSize->getRowCount()) {
             throw new InvalidGridException(sprintf(
                 'The amount of rows (%d) on the subgrid are higher than the amount of rows (%d) on the base grid.',
-                $this->subGridSize->getRowCount(), $this->size->getRowCount(),
+                $this->subGridSize->getRowCount(),
+                $this->size->getRowCount(),
             ));
         }
         if ($this->size->getColumnCount() < $this->subGridSize->getColumnCount()) {
             throw new InvalidGridException(sprintf(
                 'The amount of columns (%d) on the subgrid are higher than the amount of columns (%d) on the base grid.',
-                $this->subGridSize->getColumnCount(), $this->size->getColumnCount(),
+                $this->subGridSize->getColumnCount(),
+                $this->size->getColumnCount(),
             ));
         }
 
@@ -36,13 +38,15 @@ final class Grid
         if ($this->size->getRowCount() % $this->subGridSize->getRowCount() !== 0) {
             throw new InvalidGridException(sprintf(
                 'The amount of rows (%d) on the grid must be divisible by the amount of rows (%d) on the subgrid.',
-                $this->size->getRowCount(), $this->subGridSize->getRowCount(),
+                $this->size->getRowCount(),
+                $this->subGridSize->getRowCount(),
             ));
         }
         if ($this->size->getColumnCount() % $this->subGridSize->getColumnCount() !== 0) {
             throw new InvalidGridException(sprintf(
                 'The amount of columns (%d) on the grid must be divisible by the amount of columns (%d) on the subgrid.',
-                $this->size->getColumnCount(), $this->subGridSize->getColumnCount(),
+                $this->size->getColumnCount(),
+                $this->subGridSize->getColumnCount(),
             ));
         }
     }

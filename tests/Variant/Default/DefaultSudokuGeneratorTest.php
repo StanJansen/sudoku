@@ -37,7 +37,7 @@ final class DefaultSudokuGeneratorTest extends TestCase
 
         // Index the possible solutions.
         $highestSolution = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
-        $possibleSolutions = range(1,$highestSolution);
+        $possibleSolutions = range(1, $highestSolution);
 
         // Make sure every column contains all possible solutions.
         for ($row = 1; $row <= $gridSize->getRowCount(); $row++) {

@@ -3,9 +3,11 @@ image: webdevops/php-dev:8.0-alpine
 cache:
     paths:
         - ./vendor/
+        - ./tools/php-cs-fixer/vendor/
 
 before_script:
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+    - composer install --working-dir=tools/php-cs-fixer --prefer-dist --no-ansi --no-interaction --no-progress
 
 stages:
     - analyse
@@ -15,6 +17,7 @@ analyse:
     stage: analyse
     script:
         - vendor/bin/phpstan analyse
+        - tools/php-cs-fixer/vendor/bin/php-cs-fixer fix ./ --dry-run --diff
 
 test:
     stage: test

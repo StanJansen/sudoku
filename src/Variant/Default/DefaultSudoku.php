@@ -16,7 +16,8 @@ class DefaultSudoku implements SudokuInterface
 
     public function __construct(
         protected Grid $grid,
-    ) {}
+    ) {
+    }
 
     /**
      * {@inheritdoc}

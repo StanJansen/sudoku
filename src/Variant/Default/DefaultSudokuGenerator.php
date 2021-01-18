@@ -85,7 +85,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         $gridSize = $sudoku->getGrid()->getSize();
         $subGridSize = $sudoku->getGrid()->getSubGridSize();
         $highestSolution = $subGridSize->getRowCount() * $subGridSize->getColumnCount();
-        $possibleSolutions = range(1,$highestSolution);
+        $possibleSolutions = range(1, $highestSolution);
         $possibleSolutions = array_combine($possibleSolutions, $possibleSolutions); // Make sure the key is the same as the value for unsetting.
 
         // Generate all subgrids, base the max amount of generation attempts on the grid and subgrid size.
