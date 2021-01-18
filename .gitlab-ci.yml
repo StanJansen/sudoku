@@ -1,4 +1,4 @@
-image: webdevops/php-dev:8.0-alpine
+image: jitesoft/phpunit:8.0
 
 cache:
     paths:
