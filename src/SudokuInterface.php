@@ -23,4 +23,19 @@ interface SudokuInterface extends BelongsToSudokuVariantInterface
      * Returns the solution for the sudoku for the given row and column, returns null if the solution is not set.
      */
     public function getSolution(int $row, int $column): ?int;
+
+    /**
+     * Sets the answer for the given row and column.
+     */
+    public function setAnswer(int $row, int $column, int $answer): void;
+
+    /**
+     * Returns the answer for the sudoku for the given row and column, returns null if the answer is not set.
+     */
+    public function getAnswer(int $row, int $column): ?int;
+
+    /**
+     * Determines if the sudoku is solved.
+     */
+    public function isSolved(): bool;
 }

@@ -3,6 +3,7 @@
 namespace Stanjan\Sudoku\Variant\Default;
 
 use Stanjan\Sudoku\Exception\GeneratorException;
+use Stanjan\Sudoku\Exception\SolverException;
 use Stanjan\Sudoku\Grid\Grid;
 use Stanjan\Sudoku\Grid\GridSize;
 use Stanjan\Sudoku\SudokuGeneratorInterface;
@@ -41,9 +42,9 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         $sudoku = $this->createBaseSudoku();
 
         // Generate the solutions for the sudoku, try until succeeded or the limit is reached.
-        $solutioned = false;
+        $solutionsGenerated = false;
         $attempt = 0;
-        while ($solutioned !== true) {
+        while ($solutionsGenerated !== true) {
             // Throw an error if generating the solutions fails more than the limit.
             $attempt++;
             if ($attempt > $this->retrySolutionsLimit) {
@@ -52,11 +53,17 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
 
             try {
                 $this->generateSolutions($sudoku);
-                $solutioned = true;
+                $solutionsGenerated = true;
             } catch (GeneratorException) {
                 // The generation failed.
             }
         }
+
+        // Set the base answers of the sudoku.
+        $this->setBaseAnswers($sudoku);
+
+        // Clean up the answers of the sudoku.
+        $this->cleanAnswers($sudoku);
 
         return $sudoku;
     }
@@ -139,6 +146,102 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
 
                 if ($attempt >= $maxAttempts) {
                     throw new GeneratorException(sprintf('Subgrid could not be generated after %d attempts.', $attempt));
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the base answers required to be able to solve the sudoku.
+     */
+    protected function setBaseAnswers(DefaultSudoku $sudoku): void
+    {
+        // Keep adding a random answer until the sudoku can be solved.
+        $gridSize = $sudoku->getGrid()->getSize();
+        $totalCells = $gridSize->getColumnCount() * $gridSize->getRowCount();
+        $solver = new DefaultSudokuSolver();
+
+        for ($answerCount = 0; $answerCount < $totalCells; $answerCount++) {
+            // Do not try to solve the sudoku until at least 1/5th of the answers have been set.
+            if ($answerCount >= ceil($totalCells / 5)) {
+                // Try to solve a clone of the sudoku so the answers won't all be set.
+                $sudokuClone = clone $sudoku;
+                try {
+                    $solver->solve($sudokuClone);
+                    // The sudoku could be solved, do not add any more answers.
+                    return;
+                } catch (SolverException) {
+                    // The sudoku could not be solved, add more answers.
+                }
+            }
+
+            // Add a random answer to the sudoku.
+            $this->addRandomAnswer($sudoku);
+        }
+
+        throw new GeneratorException('Setting the base answers to the given sudoku failed.');
+    }
+
+    /**
+     * Adds a random answer to the given sudoku.
+     */
+    protected function addRandomAnswer(DefaultSudoku $sudoku): void
+    {
+        if ($sudoku->isSolved()) {
+            throw new GeneratorException('Cannot add a random answer to a sudoku that has already been solved.');
+        }
+
+        // Pick a random cell.
+        $gridSize = $sudoku->getGrid()->getSize();
+        $row = rand(1, $gridSize->getRowCount());
+        $column = rand(1, $gridSize->getColumnCount());
+
+        // Retry if the answer for this cell has already been set correctly.
+        $existingAnswer = $sudoku->getAnswer($row, $column);
+        $solution = $sudoku->getSolution($row, $column);
+        if ($existingAnswer === $solution) {
+            $this->addRandomAnswer($sudoku);
+            return;
+        }
+
+        // Set the answer.
+        $sudoku->setAnswer($row, $column, $solution);
+    }
+
+    /**
+     * Cleans answers from the sudoku that are not necessary.
+     */
+    protected function cleanAnswers(DefaultSudoku $sudoku): void
+    {
+        $gridSize = $sudoku->getGrid()->getSize();
+        $solver = new DefaultSudokuSolver();
+
+        // Try to remove every answered cell and check if the sudoku is still solvable.
+        $rows = $possibleAnswers = range(1, $gridSize->getRowCount());
+        $columns = $possibleAnswers = range(1, $gridSize->getColumnCount());
+        // Shuffle the rows and columns so the removed order will always be random, otherwise the top left will always be more empty than bottom right.
+        shuffle($rows);
+        shuffle($columns);
+        foreach ($rows as $row) {
+            foreach ($columns as $column) {
+                if (null === $sudoku->getAnswer($row, $column)) {
+                    // This cell has not been answered yet, ignore.
+                    continue;
+                }
+
+                // Clone the sudoku to test so the original will not be altered in case of a fail.
+                $sudokuClone = clone $sudoku;
+                // Remove the cell answer.
+                $sudokuClone->setAnswer($row, $column, null);
+
+                try {
+                    $solver->solve($sudokuClone);
+                    // The sudoku could still be solved without the cell answer, remove it on the original sudoku too and try again.
+                    $sudoku->setAnswer($row, $column, null);
+                    $this->cleanAnswers($sudoku);
+                    return;
+                } catch (SolverException) {
+                    // The sudoku could not be solved anymore, do not remove this answer on the original sudoku.
                 }
             }
         }
