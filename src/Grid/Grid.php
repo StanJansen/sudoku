@@ -66,7 +66,7 @@ final class Grid
      */
     public function getHorizontalSubGridCount(): int
     {
-        return $this->size->getRowCount() / $this->subGridSize->getRowCount();
+        return $this->size->getColumnCount() / $this->subGridSize->getColumnCount();
     }
 
     /**
@@ -74,6 +74,6 @@ final class Grid
      */
     public function getVerticalSubGridCount(): int
     {
-        return $this->size->getColumnCount() / $this->subGridSize->getColumnCount();
+        return $this->size->getRowCount() / $this->subGridSize->getRowCount();
     }
 }

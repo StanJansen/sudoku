@@ -21,8 +21,8 @@ final class GridTest extends TestCase
 
         $this->assertSame($gridSize, $grid->getSize());
         $this->assertSame($subGridSize, $grid->getSubGridSize());
-        $this->assertSame(2, $grid->getHorizontalSubGridCount());
-        $this->assertSame(3, $grid->getVerticalSubGridCount());
+        $this->assertSame(2, $grid->getVerticalSubGridCount());
+        $this->assertSame(3, $grid->getHorizontalSubGridCount());
     }
 
     public function testGreaterSubGridRows(): void

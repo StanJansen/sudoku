@@ -27,8 +27,8 @@ class DefaultSudokuSolver implements SudokuSolverInterface
             throw new SolverException('This solver only supports square sudoku grids.');
         }
 
-        // Keep adding solutions until the sudoku is solved or a SolverException is thrown.
-        while (!$sudoku->isSolved()) {
+        // Keep adding solutions until the sudoku is fully answered or a SolverException is thrown.
+        while (!$sudoku->isFullyAnswered()) {
             $this->addAnswer($sudoku);
         }
     }
@@ -69,6 +69,107 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      * @throws SolverException When the cell could not be answered.
      */
     protected function addAnswerForCell(SudokuInterface $sudoku, int $row, int $column): void
+    {
+        $gridSize = $sudoku->getGrid()->getSize();
+
+        $possibleAnswers = $this->getPossibleAnswersForCell($sudoku, $row, $column);
+
+        // Check if it's the only field in its' row with a possible answer.
+        if (count($possibleAnswers) > 1) {
+            $possibleRowAnswers = $possibleAnswers;
+            $mappedCellPossibleAnswers = [];
+            for ($i = 1; $i <= $gridSize->getColumnCount(); $i++) {
+                if ($i === $column || null !== $sudoku->getAnswer($row, $i)) {
+                    // This is the current cell or it already has an answer, ignore.
+                    continue;
+                }
+
+                // Remove the possible answers for the other cell from the possible answers.
+                $answers = $this->getPossibleAnswersForCell($sudoku, $row, $i);
+                $possibleAnswersKey = implode(',', $answers);
+                $mappedCellPossibleAnswers[$possibleAnswersKey] = ($mappedCellPossibleAnswers[$possibleAnswersKey] ?? 0) + 1;
+                $possibleRowAnswers = array_diff($possibleRowAnswers, $answers);
+                if ($mappedCellPossibleAnswers[$possibleAnswersKey] === count($answers)) {
+                    // It cannot be one of these answers as they are already shared over other cells in the same row, remove them.
+                    $possibleAnswers = array_diff($possibleAnswers, $answers);
+                }
+            }
+            if (count($possibleRowAnswers) === 1) {
+                // There is only one answer possible for this cell.
+                $possibleAnswers = $possibleRowAnswers;
+            }
+        }
+        // Check if it's the only field in its' column with a possible answer.
+        if (count($possibleAnswers) > 1) {
+            $possibleColumnAnswers = $possibleAnswers;
+            $mappedCellPossibleAnswers = [];
+            for ($i = 1; $i <= $gridSize->getRowCount(); $i++) {
+                if ($i === $row || null !== $sudoku->getAnswer($i, $column)) {
+                    // This is the current cell or it already has an answer, ignore.
+                    continue;
+                }
+
+                // Remove the possible answers for the other cell from the possible answers.
+                $answers = $this->getPossibleAnswersForCell($sudoku, $i, $column);
+                $possibleAnswersKey = implode(',', $answers);
+                $mappedCellPossibleAnswers[$possibleAnswersKey] = ($mappedCellPossibleAnswers[$possibleAnswersKey] ?? 0) + 1;
+                $possibleColumnAnswers = array_diff($possibleColumnAnswers, $answers);
+                if ($mappedCellPossibleAnswers[$possibleAnswersKey] === count($answers)) {
+                    // It cannot be one of these answers as they are already shared over other cells in the same row, remove them.
+                    $possibleAnswers = array_diff($possibleAnswers, $answers);
+                }
+            }
+            if (count($possibleColumnAnswers) === 1) {
+                // There is only one answer possible for this cell.
+                $possibleAnswers = $possibleColumnAnswers;
+            }
+        }
+        // Check if it's the only field in its' subgrid with a possible answer.
+        if (count($possibleAnswers) > 1) {
+            $possibleSubGridAnswers = $possibleAnswers;
+            $mappedCellPossibleAnswers = [];
+            $subGridSize = $sudoku->getGrid()->getSubGridSize();
+            $rowOffset = $row - (($row - 1) % $subGridSize->getRowCount());
+            $columnOffset = $column - (($column - 1) % $subGridSize->getColumnCount());
+            for ($subGridRow = $rowOffset; $subGridRow < $rowOffset + $subGridSize->getRowCount(); $subGridRow++) {
+                for ($subGridColumn = $columnOffset; $subGridColumn < $columnOffset + $subGridSize->getColumnCount(); $subGridColumn++) {
+                    if ($subGridRow === $row && $subGridColumn === $column || null !== $sudoku->getAnswer($subGridRow, $subGridColumn)) {
+                        // This is the current cell or it has already been answered, ignore.
+                        continue;
+                    }
+
+                    // Remove the possible answers for the other cell from the possible answers.
+                    $answers = $this->getPossibleAnswersForCell($sudoku, $subGridRow, $subGridColumn);
+                    $possibleAnswersKey = implode(',', $answers);
+                    $mappedCellPossibleAnswers[$possibleAnswersKey] = ($mappedCellPossibleAnswers[$possibleAnswersKey] ?? 0) + 1;
+                    $possibleSubGridAnswers = array_diff($possibleSubGridAnswers, $answers);
+                    if ($mappedCellPossibleAnswers[$possibleAnswersKey] === count($answers)) {
+                        // It cannot be one of these answers as they are already shared over other cells in the same row, remove them.
+                        $possibleAnswers = array_diff($possibleAnswers, $answers);
+                    }
+                }
+            }
+            if (count($possibleSubGridAnswers) === 1) {
+                // There is only one answer possible for this cell.
+                $possibleAnswers = $possibleSubGridAnswers; // TODO: Cover in tests
+            }
+        }
+
+        // Check if the answer has been found.
+        if (count($possibleAnswers) === 1) {
+            $sudoku->setAnswer($row, $column, reset($possibleAnswers));
+            return;
+        }
+
+        throw new SolverException(sprintf('The answer for row %d column %d could not be generated.', $row, $column));
+    }
+
+    /**
+     * Returns the possible answers for this cell, not taking other cells in consideration with multiple possible answers.
+     *
+     * @return array<int>
+     */
+    private function getPossibleAnswersForCell(SudokuInterface $sudoku, int $row, int $column): array
     {
         $gridSize = $sudoku->getGrid()->getSize();
 
@@ -140,12 +241,6 @@ class DefaultSudokuSolver implements SudokuSolverInterface
             }
         }
 
-        // Check if the answer has been found.
-        if (count($possibleAnswers) === 1) {
-            $sudoku->setAnswer($row, $column, reset($possibleAnswers));
-            return;
-        }
-
-        throw new SolverException(sprintf('The answer for row %d column %d could not be generated.', $row, $column));
+        return $possibleAnswers;
     }
 }

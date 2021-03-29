@@ -11,12 +11,12 @@ use Stanjan\Sudoku\SudokuInterface;
 
 class DefaultSudokuGenerator implements SudokuGeneratorInterface
 {
-    const DEFAULT_RETRY_ANSWERS_LIMIT = 25_000;
+    const DEFAULT_RETRY_SOLUTIONS_LIMIT = 25_000;
 
     /**
      * The amount of times the generator will try to generate the solutions of the sudoku.
      */
-    protected int $retrySolutionsLimit = self::DEFAULT_RETRY_ANSWERS_LIMIT;
+    protected int $retrySolutionsLimit = self::DEFAULT_RETRY_SOLUTIONS_LIMIT;
 
     /**
      * {@inheritdoc}
@@ -187,8 +187,8 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
      */
     protected function addRandomAnswer(DefaultSudoku $sudoku): void
     {
-        if ($sudoku->isSolved()) {
-            throw new GeneratorException('Cannot add a random answer to a sudoku that has already been solved.');
+        if ($sudoku->isFullyAnswered()) {
+            throw new GeneratorException('Cannot add a random answer to a sudoku that has already been fully answered.');
         }
 
         // Pick a random cell.
@@ -217,15 +217,15 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         $solver = new DefaultSudokuSolver();
 
         // Try to remove every answered cell and check if the sudoku is still solvable.
-        $rows = $possibleAnswers = range(1, $gridSize->getRowCount());
-        $columns = $possibleAnswers = range(1, $gridSize->getColumnCount());
+        $rows = range(1, $gridSize->getRowCount());
+        $columns = range(1, $gridSize->getColumnCount());
         // Shuffle the rows and columns so the removed order will always be random, otherwise the top left will always be more empty than bottom right.
         shuffle($rows);
         shuffle($columns);
         foreach ($rows as $row) {
             foreach ($columns as $column) {
                 if (null === $sudoku->getAnswer($row, $column)) {
-                    // This cell has not been answered yet, ignore.
+                    // This cell has not been answered, ignore.
                     continue;
                 }
 
@@ -236,10 +236,8 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
 
                 try {
                     $solver->solve($sudokuClone);
-                    // The sudoku could still be solved without the cell answer, remove it on the original sudoku too and try again.
+                    // The sudoku could still be solved without the cell answer, remove it on the original sudoku too.
                     $sudoku->setAnswer($row, $column, null);
-                    $this->cleanAnswers($sudoku);
-                    return;
                 } catch (SolverException) {
                     // The sudoku could not be solved anymore, do not remove this answer on the original sudoku.
                 }
