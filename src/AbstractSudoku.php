@@ -84,7 +84,7 @@ abstract class AbstractSudoku implements SudokuInterface
 
         foreach ($this->answers as $rowAnswers) {
             // Do not count null values as an answer.
-            $totalCount += count(array_filter($rowAnswers, fn(?int $answer) => null !== $answer ));
+            $totalCount += count(array_filter($rowAnswers, fn (?int $answer) => null !== $answer));
         }
 
         return $totalCount === $this->grid->getSize()->getRowCount() * $this->grid->getSize()->getColumnCount();
