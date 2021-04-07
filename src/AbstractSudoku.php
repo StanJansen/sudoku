@@ -78,7 +78,23 @@ abstract class AbstractSudoku implements SudokuInterface
     /**
      * {@inheritdoc}
      */
+    public function hasAnswers(): bool
+    {
+        return $this->getAnswerCount() > 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function isFullyAnswered(): bool
+    {
+        return $this->getAnswerCount() === $this->grid->getSize()->getRowCount() * $this->grid->getSize()->getColumnCount();
+    }
+
+    /**
+     * Returns the total amount of answers given.
+     */
+    protected function getAnswerCount(): int
     {
         $totalCount = 0;
 
@@ -87,6 +103,6 @@ abstract class AbstractSudoku implements SudokuInterface
             $totalCount += count(array_filter($rowAnswers, fn (?int $answer) => null !== $answer));
         }
 
-        return $totalCount === $this->grid->getSize()->getRowCount() * $this->grid->getSize()->getColumnCount();
+        return $totalCount;
     }
 }
