@@ -141,4 +141,212 @@ final class DefaultSudokuSolverTest extends TestCase
             }
         }
     }
+
+    /**
+     * Test solving a cell by basic elimination of the same row.
+     */
+    public function testSolveBasicRow(): void
+    {
+        $gridSize = new GridSize(4, 4);
+        $subGridSize = new GridSize(2, 2);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [1, 2, 3, null],
+            [null, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+
+        try {
+            $solver->solve($sudoku);
+            throw new \LogicException('The solver did not fail for some reason.');
+        } catch (SolverException) {
+            // The solver should fail as not all cells can be answered, we only care about row 1 column 4 being answered.
+        }
+
+        $this->assertSame(4, $sudoku->getAnswer(1, 4));
+    }
+
+    /**
+     * Test solving a cell by basic elimination of the same column.
+     */
+    public function testSolveBasicColumn(): void
+    {
+        $gridSize = new GridSize(4, 4);
+        $subGridSize = new GridSize(2, 2);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [1, null, null, null],
+            [2, null, null, null],
+            [3, null, null, null],
+            [null, null, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+
+        try {
+            $solver->solve($sudoku);
+            throw new \LogicException('The solver did not fail for some reason.');
+        } catch (SolverException) {
+            // The solver should fail as not all cells can be answered, we only care about row 4 column 1 being answered.
+        }
+
+        $this->assertSame(4, $sudoku->getAnswer(4, 1));
+    }
+
+    /**
+     * Test solving a cell by basic elimination of the same subgrid.
+     */
+    public function testSolveBasicSubGrid(): void
+    {
+        $gridSize = new GridSize(4, 4);
+        $subGridSize = new GridSize(2, 2);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [1, 2, null, null],
+            [3, null, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+
+        try {
+            $solver->solve($sudoku);
+            throw new \LogicException('The solver did not fail for some reason.');
+        } catch (SolverException) {
+            // The solver should fail as not all cells can be answered, we only care about row 2 column 2 being answered.
+        }
+
+        $this->assertSame(4, $sudoku->getAnswer(2, 2));
+    }
+
+    /**
+     * Test solving a cell by being the only cell in the row with a possible answer.
+     */
+    public function testSolvePossibleAnswersRow(): void
+    {
+        $gridSize = new GridSize(4, 4);
+        $subGridSize = new GridSize(2, 2);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [1, null, 3, null],
+            [null, 4, null, null],
+            [null, null, null, null],
+            [null, null, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+
+        try {
+            $solver->solve($sudoku);
+            throw new \LogicException('The solver did not fail for some reason.');
+        } catch (SolverException) {
+            // The solver should fail as not all cells can be answered, we only care about row 1 column 2 & 4 being answered.
+        }
+
+        $this->assertSame(2, $sudoku->getAnswer(1, 2));
+        $this->assertSame(4, $sudoku->getAnswer(1, 4));
+    }
+
+    /**
+     * Test solving a cell by being the only cell in the column with a possible answer.
+     */
+    public function testSolvePossibleAnswersColumn(): void
+    {
+        $gridSize = new GridSize(4, 4);
+        $subGridSize = new GridSize(2, 2);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [1, null, null, null],
+            [null, 4, null, null],
+            [3, null, null, null],
+            [null, null, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+
+        try {
+            $solver->solve($sudoku);
+            throw new \LogicException('The solver did not fail for some reason.');
+        } catch (SolverException) {
+            // The solver should fail as not all cells can be answered, we only care about column 1 row 2 & 4 being answered.
+        }
+
+        $this->assertSame(2, $sudoku->getAnswer(2, 1));
+        $this->assertSame(4, $sudoku->getAnswer(4, 1));
+    }
+
+    /**
+     * Test solving a cell by being the only cell in the subgrid with a possible answer.
+     */
+    public function testSolvePossibleAnswersSubGrid(): void
+    {
+        $gridSize = new GridSize(9, 9);
+        $subGridSize = new GridSize(3, 3);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [1, 2, 3, null, null, null],
+            [null, 4, 5, null, null, null],
+            [null, null, 6, null, null, 9],
+            [null, null, null, null, null, null],
+            [null, null, null, null, null, null],
+            [null, null, null, null, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+
+        try {
+            $solver->solve($sudoku);
+            throw new \LogicException('The solver did not fail for some reason.');
+        } catch (SolverException) {
+            // The solver should fail as not all cells can be answered, we only care about row 2 column 1 being answered.
+        }
+
+        $this->assertSame(9, $sudoku->getAnswer(2, 1));
+    }
 }

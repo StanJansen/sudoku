@@ -9,6 +9,14 @@ use Stanjan\Sudoku\SudokuSolverInterface;
 class DefaultSudokuSolver implements SudokuSolverInterface
 {
     /**
+     * Possible answers cache so the same cell won't be calculated multiple times.
+     * Integer-indexed array (representing rows) containing an integer-indexed array (representing the columns per row) containing the possible answers.
+     *
+     * @var array<int, array<int, array<int>>
+     */
+    private array $cachedPossibleAnswers = [];
+
+    /**
      * {@inheritdoc}
      */
     public static function getVariantClassName(): string
@@ -30,6 +38,9 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         // Keep adding solutions until the sudoku is fully answered or a SolverException is thrown.
         while (!$sudoku->isFullyAnswered()) {
             $this->addAnswer($sudoku);
+
+            // Clear cached possible answers after adding a new answer.
+            $this->cachedPossibleAnswers = [];
         }
     }
 
@@ -171,6 +182,11 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      */
     private function getPossibleAnswersForCell(SudokuInterface $sudoku, int $row, int $column): array
     {
+        if (isset($this->cachedPossibleAnswers[$row][$column])) {
+            // The possible answers for this cell have already been calculated.
+            return $this->cachedPossibleAnswers[$row][$column];
+        }
+
         $gridSize = $sudoku->getGrid()->getSize();
 
         // Index all possible answers.
@@ -240,6 +256,14 @@ class DefaultSudokuSolver implements SudokuSolverInterface
                 }
             }
         }
+
+        if (!isset($this->cachedPossibleAnswers[$row])) {
+            // Create the row array of no other cells in this row have been answered yet.
+            $this->cachedPossibleAnswers[$row] = [];
+        }
+
+        // Cache the answers.
+        $this->cachedPossibleAnswers[$row][$column] = $possibleAnswers;
 
         return $possibleAnswers;
     }
