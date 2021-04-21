@@ -349,4 +349,37 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $this->assertSame(9, $sudoku->getAnswer(2, 1));
     }
+
+    /**
+     * Test solving a cell by using the X-Wing method.
+     */
+    public function testSolveXWing(): void
+    {
+        $gridSize = new GridSize(9, 9);
+        $subGridSize = new GridSize(3, 3);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [6, null, 1, 7, 3, null, 4, null, null],
+            [4, 9, null, null, null, 6, null, 7, 1],
+            [7, null, null, 1, 4, 9, null, 6, null],
+            [8, 1, 2, 6, 7, 4, 9, 3, 5],
+            [3, 6, 7, 9, 5, 8, 1, 2, 4],
+            [5, 4, 9, 2, 1, 3, 6, 8, 7],
+            [null, 3, null, 4, 9, 7, null, null, 6],
+            [9, 7, 6, null, null, 1, null, 4, 3],
+            [null, null, 4, 3, 6, null, 7, null, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+        $solver->solve($sudoku);
+
+        $this->assertSame(2, $sudoku->getAnswer(3, 9));
+    }
 }

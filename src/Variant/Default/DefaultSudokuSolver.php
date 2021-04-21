@@ -12,7 +12,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      * Possible answers cache so the same cell won't be calculated multiple times.
      * Integer-indexed array (representing rows) containing an integer-indexed array (representing the columns per row) containing the possible answers.
      *
-     * @var array<int, array<int, array<int>>
+     * @var array<int, array<int, array<int>>>
      */
     private array $cachedPossibleAnswers = [];
 
@@ -65,10 +65,20 @@ class DefaultSudokuSolver implements SudokuSolverInterface
                     $this->addAnswerForCell($sudoku, $row, $column);
                     // Adding an answer succeeded, return.
                     return;
-                } catch (SolverException) {
-                    // This cell could not be answered, try the next cell.
+                } catch (SolverException $exception) {
+                    // This cell could not be answered, throw an error if the cell has no possible answers.
+                    if (0 === count($this->getPossibleAnswersForCell($sudoku, $row, $column))) {
+                        throw $exception;
+                    }
+
+                    // This cell still has multiple possible answers, try the next cell.
                 }
             }
+        }
+
+        // Try advanced techniques.
+        if ($this->tryAddAdvancedAnswer($sudoku)) {
+            return;
         }
 
         throw new SolverException('No answer could be generated.');
@@ -162,7 +172,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
             }
             if (count($possibleSubGridAnswers) === 1) {
                 // There is only one answer possible for this cell.
-                $possibleAnswers = $possibleSubGridAnswers; // TODO: Cover in tests
+                $possibleAnswers = $possibleSubGridAnswers;
             }
         }
 
@@ -176,12 +186,31 @@ class DefaultSudokuSolver implements SudokuSolverInterface
     }
 
     /**
+     * Try adding an answer using advanced techniques.
+     *
+     * @return bool True when an answer could be added.
+     */
+    protected function tryAddAdvancedAnswer(SudokuInterface $sudoku): bool
+    {
+        if ($this->tryAddXWingAnswer($sudoku)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the possible answers for this cell, not taking other cells in consideration with multiple possible answers.
      *
      * @return array<int>
      */
     private function getPossibleAnswersForCell(SudokuInterface $sudoku, int $row, int $column): array
     {
+        if (null !== $sudoku->getAnswer($row, $column)) {
+            // This cell is already answered.
+            return [$sudoku->getAnswer($row, $column)];
+        }
+
         if (isset($this->cachedPossibleAnswers[$row][$column])) {
             // The possible answers for this cell have already been calculated.
             return $this->cachedPossibleAnswers[$row][$column];
@@ -266,5 +295,166 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         $this->cachedPossibleAnswers[$row][$column] = $possibleAnswers;
 
         return $possibleAnswers;
+    }
+
+    /**
+     * Try adding an answer using the x-wing technique.
+     *
+     * @return bool True when an answer could be added.
+     */
+    private function tryAddXWingAnswer(SudokuInterface $sudoku): bool
+    {
+        $gridSize = $sudoku->getGrid()->getSize();
+
+        // Try to find an answer for every non-answered cell.
+        for ($row = 1; $row <= $gridSize->getRowCount() - 1; $row++) { // Ignore the last row as it needs a row after this for x-wing.
+            for ($column = 1; $column <= $gridSize->getColumnCount() - 1; $column++) { // Ignore the last column as it needs a column after this for x-wing.
+                if (null !== $sudoku->getAnswer($row, $column)) {
+                    // This cell is already answered, ignore.
+                    continue;
+                }
+
+                $possibleAnswers = $this->getPossibleAnswersForCell($sudoku, $row, $column);
+
+                // Check for x-wings in the same row.
+                foreach ($possibleAnswers as $possibleAnswer) {
+                    $otherColumnWithPossibleAnswer = null;
+
+                    for ($otherColumn = 1; $otherColumn <= $gridSize->getColumnCount(); $otherColumn++) {
+                        if ($otherColumn === $column || null !== $sudoku->getAnswer($row, $otherColumn)) {
+                            // This is the current column or it's already answered, ignore.
+                            continue;
+                        }
+
+                        if (in_array($possibleAnswer, $this->getPossibleAnswersForCell($sudoku, $row, $otherColumn))) {
+                            if (null !== $otherColumnWithPossibleAnswer) {
+                                // There are multiple columns in this row with this possible answer, try the next possible answer.
+                                continue 2;
+                            }
+                            $otherColumnWithPossibleAnswer = $otherColumn;
+                        }
+                    }
+
+                    // There is only one other column with this possible answer in this row. Check if this is the same case in a different row.
+                    for ($otherRow = $row + 1; $otherRow <= $gridSize->getRowCount(); $otherRow++) {
+                        for ($otherColumn = 1; $otherColumn <= $gridSize->getColumnCount(); $otherColumn++) {
+                            if ($otherColumn === $column || $otherColumn === $otherColumnWithPossibleAnswer) {
+                                // This is one of the same columns, it must contain the possible answer aswell.
+                                if (!in_array($possibleAnswer, $this->getPossibleAnswersForCell($sudoku, $otherRow, $otherColumn))) {
+                                    // The possible answer is not in the same column, continue to the next row.
+                                    continue 2;
+                                }
+                            } elseif (in_array($possibleAnswer, $this->getPossibleAnswersForCell($sudoku, $otherRow, $otherColumn))) {
+                                // The possible answer is also in a different column, continue to the next row.
+                                continue 2;
+                            }
+                        }
+
+                        // X-wing found. Remove the possible answer from all other cells in the same columns.
+                        for ($removeRow = 1; $removeRow <= $gridSize->getRowCount(); $removeRow++) {
+                            if ($removeRow === $row || $removeRow === $otherRow) {
+                                // This is one of the x-wing rows, ignore.
+                                continue;
+                            }
+
+                            if (null === $sudoku->getAnswer($removeRow, $column)) {
+                                $this->cachedPossibleAnswers[$removeRow][$column] = array_diff(
+                                    $this->getPossibleAnswersForCell($sudoku, $removeRow, $column),
+                                    [$possibleAnswer]
+                                );
+                                if (count($this->cachedPossibleAnswers[$removeRow][$column]) === 1) {
+                                    // There is only one possible answer left, add it and return.
+                                    $sudoku->setAnswer($removeRow, $column, reset($this->cachedPossibleAnswers[$removeRow][$column]));
+                                    return true;
+                                }
+                            }
+
+                            if (null === $sudoku->getAnswer($removeRow, $otherColumnWithPossibleAnswer)) {
+                                $this->cachedPossibleAnswers[$removeRow][$otherColumnWithPossibleAnswer] = array_diff(
+                                    $this->getPossibleAnswersForCell($sudoku, $removeRow, $otherColumnWithPossibleAnswer),
+                                    [$possibleAnswer]
+                                );
+                                if (count($this->cachedPossibleAnswers[$removeRow][$otherColumnWithPossibleAnswer]) === 1) {
+                                    // There is only one possible answer left, add it and return.
+                                    $sudoku->setAnswer($removeRow, $otherColumnWithPossibleAnswer, reset($this->cachedPossibleAnswers[$removeRow][$otherColumnWithPossibleAnswer]));
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check for x-wings in the same column.
+                foreach ($possibleAnswers as $possibleAnswer) {
+                    $otherRowWithPossibleAnswer = null;
+
+                    for ($otherRow = 1; $otherRow <= $gridSize->getRowCount(); $otherRow++) {
+                        if ($otherRow === $row || null !== $sudoku->getAnswer($otherRow, $column)) {
+                            // This is the current row or it's already answered, ignore.
+                            continue;
+                        }
+
+                        if (in_array($possibleAnswer, $this->getPossibleAnswersForCell($sudoku, $otherRow, $column))) {
+                            if (null !== $otherRowWithPossibleAnswer) {
+                                // There are multiple rows in this column with this possible answer, try the next possible answer.
+                                continue 2;
+                            }
+                            $otherRowWithPossibleAnswer = $otherRow;
+                        }
+                    }
+
+                    // There is only one other column with this possible answer in this row. Check if this is the same case in a different row.
+                    for ($otherColumn = $column + 1; $otherColumn <= $gridSize->getColumnCount(); $otherColumn++) {
+                        for ($otherRow = 1; $otherRow <= $gridSize->getRowCount(); $otherRow++) {
+                            if ($otherRow === $row || $otherRow === $otherRowWithPossibleAnswer) {
+                                // This is one of the same columns, it must contain the possible answer aswell.
+                                if (!in_array($possibleAnswer, $this->getPossibleAnswersForCell($sudoku, $otherRow, $otherColumn))) {
+                                    // The possible answer is not in the same column, continue to the next row.
+                                    continue 2;
+                                }
+                            } elseif (in_array($possibleAnswer, $this->getPossibleAnswersForCell($sudoku, $otherRow, $otherColumn))) {
+                                // The possible answer is also in a different column, continue to the next row.
+                                continue 2;
+                            }
+                        }
+
+                        // X-wing found. Remove the possible answer from all other cells in the same columns.
+                        for ($removeColumn = 1; $removeColumn <= $gridSize->getRowCount(); $removeColumn++) {
+                            if ($removeColumn === $column || $removeColumn === $otherColumn) {
+                                // This is one of the x-wing rows, ignore.
+                                continue;
+                            }
+
+                            if (null === $sudoku->getAnswer($row, $removeColumn)) {
+                                $this->cachedPossibleAnswers[$row][$removeColumn] = array_diff(
+                                    $this->getPossibleAnswersForCell($sudoku, $row, $removeColumn),
+                                    [$possibleAnswer]
+                                );
+                                if (count($this->cachedPossibleAnswers[$row][$removeColumn]) === 1) {
+                                    // There is only one possible answer left, add it and return.
+                                    $sudoku->setAnswer($row, $removeColumn, reset($this->cachedPossibleAnswers[$row][$removeColumn]));
+                                    return true;
+                                }
+                            }
+
+                            if (null === $sudoku->getAnswer($otherRowWithPossibleAnswer, $removeColumn)) {
+                                $this->cachedPossibleAnswers[$otherRowWithPossibleAnswer][$removeColumn] = array_diff(
+                                    $this->getPossibleAnswersForCell($sudoku, $otherRowWithPossibleAnswer, $removeColumn),
+                                    [$possibleAnswer]
+                                );
+                                if (count($this->cachedPossibleAnswers[$otherRowWithPossibleAnswer][$removeColumn]) === 1) {
+                                    // There is only one possible answer left, add it and return.
+                                    $sudoku->setAnswer($otherRowWithPossibleAnswer, $removeColumn, reset($this->cachedPossibleAnswers[$otherRowWithPossibleAnswer][$removeColumn]));
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // X-wing could not be applied.
+        return false;
     }
 }
