@@ -425,6 +425,10 @@ class DefaultSudokuSolver implements SudokuSolverInterface
                             $otherColumnWithPossibleAnswer = $otherColumn;
                         }
                     }
+                    if (null === $otherColumnWithPossibleAnswer) {
+                        // There are no other columns with this possible answer.
+                        continue;
+                    }
 
                     // There is only one other column with this possible answer in this row. Check if this is the same case in a different row.
                     for ($otherRow = $row + 1; $otherRow <= $gridSize->getRowCount(); $otherRow++) {
