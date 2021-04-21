@@ -192,6 +192,10 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      */
     protected function tryAddAdvancedAnswer(SudokuInterface $sudoku): bool
     {
+        if ($this->tryAddUniqueRectangleAnswer($sudoku)) {
+            return true;
+        }
+
         if ($this->tryAddXWingAnswer($sudoku)) {
             return true;
         }
@@ -295,6 +299,93 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         $this->cachedPossibleAnswers[$row][$column] = $possibleAnswers;
 
         return $possibleAnswers;
+    }
+
+    /**
+     * Try adding an answer using the unique rectangle technique.
+     *
+     * @return bool True when an answer could be added.
+     */
+    private function tryAddUniqueRectangleAnswer(SudokuInterface $sudoku): bool
+    {
+        $gridSize = $sudoku->getGrid()->getSize();
+
+        // Try to find an answer for every non-answered cell.
+        for ($row = 1; $row <= $gridSize->getRowCount() - 1; $row++) { // Ignore the last row as it needs a row after this for an unique rectangle.
+            for ($column = 1; $column <= $gridSize->getColumnCount() - 1; $column++) { // Ignore the last column as it needs a column after this for an unique rectangle.
+                if (null !== $sudoku->getAnswer($row, $column)) {
+                    // This cell is already answered, ignore.
+                    continue;
+                }
+
+                $firstColumnPossibleAnswers = $this->getPossibleAnswersForCell($sudoku, $row, $column);
+                $firstColumnPossibleAnswersCount = count($firstColumnPossibleAnswers);
+                $multipleAnswersCell = $firstColumnPossibleAnswersCount > 2 ? [$row, $column] : null; // Keeps track of the fact if one of the four columns has more than 2 possible answers.
+                for ($otherColumn = $column + 1; $otherColumn <= $gridSize->getColumnCount(); $otherColumn++) {
+                    $secondColumnPossibleAnswers = $this->getPossibleAnswersForCell($sudoku, $row, $otherColumn);
+                    $secondColumnPossibleAnswersCount = count($secondColumnPossibleAnswers);
+                    if ($secondColumnPossibleAnswersCount !== 2 && ($multipleAnswersCell || $secondColumnPossibleAnswersCount < 2)) {
+                        // This cannot be an unique rectangle, it can only have 2 or one column with multiple possible answers.
+                        continue;
+                    }
+
+                    $possibleAnswers = array_intersect($firstColumnPossibleAnswers, $secondColumnPossibleAnswers);
+                    if (count($possibleAnswers) !== 2) {
+                        // These columns do not have two of the same possible answers, it cannot form an unique rectangle.
+                        continue;
+                    }
+                    if (!$multipleAnswersCell && $secondColumnPossibleAnswersCount > 2) {
+                        $multipleAnswersCell = [$row, $otherColumn];
+                    }
+
+                    // This is a possible unique rectangle, check if there is another row it can form the rectangle with.
+                    for ($otherRow = $row + 1; $otherRow <= $gridSize->getRowCount(); $otherRow++) {
+                        $thirdColumnPossibleAnswers = $this->getPossibleAnswersForCell($sudoku, $otherRow, $column);
+                        $thirdColumnPossibleAnswersCount = count($thirdColumnPossibleAnswers);
+                        if (($thirdColumnPossibleAnswersCount !== 2 && ($multipleAnswersCell || $thirdColumnPossibleAnswersCount < 2))
+                            || count(array_intersect($possibleAnswers, $thirdColumnPossibleAnswers)) !== 2
+                        ) {
+                            // This cannot be an unique rectangle, it can only have 2 or one column with multiple possible answers, it also must match the possible answers of the original row.
+                            continue;
+                        }
+                        if (!$multipleAnswersCell && $thirdColumnPossibleAnswersCount > 2) {
+                            $multipleAnswersCell = [$otherRow, $column];
+                        }
+
+                        $fourthColumnPossibleAnswers = $this->getPossibleAnswersForCell($sudoku, $otherRow, $otherColumn);
+                        $fourthColumnPossibleAnswersCount = count($fourthColumnPossibleAnswers);
+                        if (((!$multipleAnswersCell || $fourthColumnPossibleAnswersCount !== 2) && ($multipleAnswersCell || $fourthColumnPossibleAnswersCount < 2))
+                            || count(array_intersect($possibleAnswers, $fourthColumnPossibleAnswers)) !== 2
+                        ) {
+                            // This cannot be an unique rectangle, it can only have 2 or one column with multiple possible answers, it also must match the possible answers of the original row.
+                            // If all previous cells only have 2 possible answers, this cell also must have more than 2 possible answers.
+                            continue;
+                        }
+                        if (!$multipleAnswersCell) {
+                            $multipleAnswersCell = [$otherRow, $otherColumn];
+                        }
+
+                        // An unique rectangle has been found, remove the possible answers on the multiple answers column.
+                        $this->cachedPossibleAnswers[$multipleAnswersCell[0]][$multipleAnswersCell[1]] = array_diff(
+                            $this->cachedPossibleAnswers[$multipleAnswersCell[0]][$multipleAnswersCell[1]],
+                            $possibleAnswers,
+                        );
+                        if (count($this->cachedPossibleAnswers[$multipleAnswersCell[0]][$multipleAnswersCell[1]]) === 1) {
+                            // The cell only has one possible answer left, set it.
+                            $sudoku->setAnswer(
+                                $multipleAnswersCell[0],
+                                $multipleAnswersCell[1],
+                                reset($this->cachedPossibleAnswers[$multipleAnswersCell[0]][$multipleAnswersCell[1]])
+                            );
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Unique rectangle could not be applied.
+        return false;
     }
 
     /**

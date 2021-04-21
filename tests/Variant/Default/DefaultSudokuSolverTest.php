@@ -351,6 +351,39 @@ final class DefaultSudokuSolverTest extends TestCase
     }
 
     /**
+     * Test solving a cell by using the unique rectangle method.
+     */
+    public function testSolveUniqueRectangle(): void
+    {
+        $gridSize = new GridSize(9, 9);
+        $subGridSize = new GridSize(3, 3);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [null, null, 3, 2, 7, 8, 1, null, 6],
+            [8, 6, null, 1, null, null, null, 2, null],
+            [2, 7, 1, 6, null, null, 8, null, null],
+            [3, 8, 7, 9, 6, 5, 2, 1, 4],
+            [6, 1, 9, 3, 4, 2, 5, 7, 8],
+            [null, null, 2, 8, 1, 7, 6, 3, 9],
+            [null, 3, 8, 4, 2, 1, null, 6, null],
+            [null, 2, 6, 5, 9, 3, null, 8, 1],
+            [1, null, null, 7, 8, 6, 3, null, 2],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+        $solver->solve($sudoku);
+
+        $this->assertSame(7, $sudoku->getAnswer(2, 9));
+    }
+
+    /**
      * Test solving a cell by using the X-Wing method.
      */
     public function testSolveXWing(): void
