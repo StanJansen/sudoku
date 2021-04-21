@@ -35,6 +35,9 @@ class DefaultSudokuSolver implements SudokuSolverInterface
             throw new SolverException('This solver only supports square sudoku grids.');
         }
 
+        // Clean cached possible answers from a possible previous failed solve attempt.
+        $this->cachedPossibleAnswers = [];
+
         // Keep adding solutions until the sudoku is fully answered or a SolverException is thrown.
         while (!$sudoku->isFullyAnswered()) {
             $this->addAnswer($sudoku);
