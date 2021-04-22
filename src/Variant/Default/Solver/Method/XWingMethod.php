@@ -7,6 +7,8 @@ use Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection;
 
 /**
  * Attempts to find an answer using the x-wing technique.
+ *
+ * https://www.learn-sudoku.com/x-wing.html
  */
 class XWingMethod implements SolverMethodInterface
 {

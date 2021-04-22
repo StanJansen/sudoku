@@ -5,6 +5,7 @@ namespace Stanjan\Sudoku\Variant\Default;
 use Stanjan\Sudoku\Exception\SolverException;
 use Stanjan\Sudoku\SudokuInterface;
 use Stanjan\Sudoku\SudokuSolverInterface;
+use Stanjan\Sudoku\Variant\Default\Solver\Method\SwordfishMethod;
 use Stanjan\Sudoku\Variant\Default\Solver\Method\UniqueRectangleMethod;
 use Stanjan\Sudoku\Variant\Default\Solver\Method\XWingMethod;
 use Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection;
@@ -54,7 +55,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      *
      * @throws SolverException When no answer could be generated.
      */
-    protected function addAnswer(SudokuInterface $sudoku): void
+    protected function addAnswer(SudokuInterface $sudoku, bool $retry = true): void
     {
         $gridSize = $sudoku->getGrid()->getSize();
 
@@ -83,6 +84,12 @@ class DefaultSudokuSolver implements SudokuSolverInterface
 
         // Try advanced techniques.
         if ($this->tryAddAdvancedAnswer($sudoku)) {
+            return;
+        }
+
+        if ($retry) {
+            // Retry in case a combination works.
+            $this->addAnswer($sudoku, false);
             return;
         }
 
@@ -181,6 +188,9 @@ class DefaultSudokuSolver implements SudokuSolverInterface
             }
         }
 
+        // Update the unique possible answers.
+        $this->cachedPossibleAnswers->setPossibleAnswers($row, $column, $possibleAnswers);
+
         // Check if the answer has been found.
         if (count($possibleAnswers) === 1) {
             $sudoku->setAnswer($row, $column, reset($possibleAnswers));
@@ -202,6 +212,10 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         }
 
         if (XWingMethod::tryAddAnswer($sudoku, $this->cachedPossibleAnswers)) {
+            return true;
+        }
+
+        if (SwordfishMethod::tryAddAnswer($sudoku, $this->cachedPossibleAnswers)) {
             return true;
         }
 

@@ -15,6 +15,7 @@ use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
  * @covers \Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection
  * @covers \Stanjan\Sudoku\Variant\Default\Solver\Method\UniqueRectangleMethod
  * @covers \Stanjan\Sudoku\Variant\Default\Solver\Method\XWingMethod
+ * @covers \Stanjan\Sudoku\Variant\Default\Solver\Method\SwordfishMethod
  */
 final class DefaultSudokuSolverTest extends TestCase
 {
@@ -417,5 +418,71 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver->solve($sudoku);
 
         $this->assertSame(2, $sudoku->getAnswer(3, 9));
+    }
+
+    /**
+     * Test solving a cell by using the swordfish row method.
+     */
+    public function testSolveSwordfishRow(): void
+    {
+        $gridSize = new GridSize(9, 9);
+        $subGridSize = new GridSize(3, 3);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [null, 5, 7, 3, 6, null, 2, 8, 4],
+            [6, null, 4, 8, 2, 5, null, null, null],
+            [2, 8, null, 7, null, 4, 6, 5, null],
+            [null, 9, 2, 4, null, 6, null, null, null],
+            [3, 6, 1, 9, null, 7, null, 4, 2],
+            [null, 4, 5, 1, 3, 2, null, 9, 6],
+            [4, null, 6, 2, null, null, null, 7, 5],
+            [null, 2, null, 5, 7, null, 4, 6, null],
+            [5, 7, 8, 6, 4, null, 3, 2, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+        $solver->solve($sudoku);
+
+        $this->assertSame(3, $sudoku->getAnswer(3, 9));
+    }
+
+    /**
+     * Test solving a cell by using the swordfish column method.
+     */
+    public function testSolveSwordfishColumn(): void
+    {
+        $gridSize = new GridSize(9, 9);
+        $subGridSize = new GridSize(3, 3);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [5, null, 4, null, 3, null, 2, 6, null],
+            [7, 2, null, 4, 6, 9, 8, null, 5],
+            [8, null, 6, 5, 1, 2, null, 4, 7],
+            [6, 5, 2, 1, 9, 4, 7, 8, 3],
+            [4, 7, null, 3, null, null, null, 2, 6],
+            [null, null, null, 2, 7, 6, 4, 5, null],
+            [3, 4, null, null, null, null, 6, null, 2],
+            [2, 6, 7, 9, 4, null, 5, null, 8],
+            [null, null, 5, 6, 2, null, null, null, 4],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solver = new DefaultSudokuSolver();
+        $solver->solve($sudoku);
+
+        $this->assertSame(3, $sudoku->getAnswer(9, 7));
     }
 }
