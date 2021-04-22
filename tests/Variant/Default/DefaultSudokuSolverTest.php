@@ -12,6 +12,9 @@ use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
 
 /**
  * @covers \Stanjan\Sudoku\Variant\Default\DefaultSudokuSolver
+ * @covers \Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection
+ * @covers \Stanjan\Sudoku\Variant\Default\Solver\Method\UniqueRectangleMethod
+ * @covers \Stanjan\Sudoku\Variant\Default\Solver\Method\XWingMethod
  */
 final class DefaultSudokuSolverTest extends TestCase
 {
