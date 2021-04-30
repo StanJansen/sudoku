@@ -6,7 +6,7 @@ use Stanjan\Sudoku\SudokuInterface;
 use Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection;
 
 /**
- * Attempts to find an answer using the x-wing technique.
+ * Attempts to find an answer using the swordfish technique.
  *
  * https://www.learn-sudoku.com/swordfish.html
  */
@@ -144,13 +144,6 @@ class SwordfishMethod implements SolverMethodInterface
                             // This cell is already answered, ignore.
                             continue;
                         }
-
-//                        if ($row === 9 && $column === 7) {
-//                            var_dump($cachedPossibleAnswers->getPossibleAnswers(7, 8));
-//                            var_dump($cachedPossibleAnswers->getPossibleAnswers(8, 8));
-//                            var_dump($cachedPossibleAnswers->getPossibleAnswers(9, 7));
-//                            var_dump($cachedPossibleAnswers->getPossibleAnswers(9, 8));
-//                        }
 
                         $cachedPossibleAnswers->setPossibleAnswers($row, $column, array_diff(
                             $cachedPossibleAnswers->getPossibleAnswers($row, $column),
