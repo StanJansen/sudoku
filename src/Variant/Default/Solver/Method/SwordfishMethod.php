@@ -2,7 +2,7 @@
 
 namespace Stanjan\Sudoku\Variant\Default\Solver\Method;
 
-use Stanjan\Sudoku\SudokuInterface;
+use Stanjan\Sudoku\Variant\Default\DefaultSudoku;
 use Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection;
 
 /**
@@ -15,7 +15,7 @@ class SwordfishMethod implements SolverMethodInterface
     /**
      * {@inheritDoc}
      */
-    public static function tryAddAnswer(SudokuInterface $sudoku, PossibleAnswersCollection $cachedPossibleAnswers): bool
+    public static function tryAddAnswer(DefaultSudoku $sudoku, PossibleAnswersCollection $cachedPossibleAnswers): bool
     {
         $gridSize = $sudoku->getGrid()->getSize();
 

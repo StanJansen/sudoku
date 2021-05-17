@@ -1,8 +1,12 @@
 {
     "name": "stanjan/sudoku",
     "type": "library",
-    "description": "Sudoku generators and solvers.",
-    "keywords": ["Sudoku", "Generator", "Solver"],
+    "description": "Sudoku generators, solvers and readers.",
+    "keywords": [
+        "Sudoku",
+        "Generator",
+        "Solver"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +17,9 @@
     "prefer-stable": true,
     "minimum-stability": "dev",
     "require": {
-        "php": "^8.0"
+        "php": "^8.0",
+        "guzzlehttp/guzzle": "^7.3",
+        "ext-json": "*"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12.64",

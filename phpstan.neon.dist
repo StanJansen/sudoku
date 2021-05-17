@@ -3,3 +3,6 @@ parameters:
     paths:
         - src
         - tests
+    ignoreErrors:
+        - '#Class CV\\#'
+        - '#Function CV\\#'

@@ -2,7 +2,7 @@
 
 namespace Stanjan\Sudoku\Variant\Default\Solver\Method;
 
-use Stanjan\Sudoku\SudokuInterface;
+use Stanjan\Sudoku\Variant\Default\DefaultSudoku;
 use Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection;
 
 /**
@@ -15,7 +15,7 @@ class XWingMethod implements SolverMethodInterface
     /**
      * {@inheritDoc}
      */
-    public static function tryAddAnswer(SudokuInterface $sudoku, PossibleAnswersCollection $cachedPossibleAnswers): bool
+    public static function tryAddAnswer(DefaultSudoku $sudoku, PossibleAnswersCollection $cachedPossibleAnswers): bool
     {
         $gridSize = $sudoku->getGrid()->getSize();
 
@@ -182,7 +182,7 @@ class XWingMethod implements SolverMethodInterface
     /**
      * @return array<int>
      */
-    private static function getPossibleAnswersForCell(SudokuInterface $sudoku, PossibleAnswersCollection $cachedPossibleAnswers, int $row, int $column): array
+    private static function getPossibleAnswersForCell(DefaultSudoku $sudoku, PossibleAnswersCollection $cachedPossibleAnswers, int $row, int $column): array
     {
         if ($existingAnswer = $sudoku->getAnswer($row, $column)) {
             return [$existingAnswer];

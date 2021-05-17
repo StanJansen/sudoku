@@ -32,7 +32,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $sudoku = new DefaultSudoku($grid);
 
         $this->expectException(SolverException::class);
-        $this->expectExceptionMessage('This solver only supports square sudoku grids.');
+        $this->expectExceptionMessage('This solver only supports square default sudoku grids.');
 
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);

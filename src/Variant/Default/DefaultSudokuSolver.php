@@ -37,8 +37,8 @@ class DefaultSudokuSolver implements SudokuSolverInterface
     {
         // Check if the sudoku is square.
         $gridSize = $sudoku->getGrid()->getSize();
-        if ($gridSize->getRowCount() !== $gridSize->getColumnCount()) {
-            throw new SolverException('This solver only supports square sudoku grids.');
+        if ($gridSize->getRowCount() !== $gridSize->getColumnCount() || !($sudoku instanceof DefaultSudoku)) {
+            throw new SolverException('This solver only supports square default sudoku grids.');
         }
 
         // Keep adding solutions until the sudoku is fully answered or a SolverException is thrown.
@@ -55,7 +55,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      *
      * @throws SolverException When no answer could be generated.
      */
-    protected function addAnswer(SudokuInterface $sudoku, bool $retry = true): void
+    protected function addAnswer(DefaultSudoku $sudoku, bool $retry = true): void
     {
         $gridSize = $sudoku->getGrid()->getSize();
 
@@ -101,7 +101,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      *
      * @throws SolverException When the cell could not be answered.
      */
-    protected function addAnswerForCell(SudokuInterface $sudoku, int $row, int $column): void
+    protected function addAnswerForCell(DefaultSudoku $sudoku, int $row, int $column): void
     {
         $gridSize = $sudoku->getGrid()->getSize();
 
@@ -205,7 +205,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      *
      * @return bool True when an answer could be added.
      */
-    protected function tryAddAdvancedAnswer(SudokuInterface $sudoku): bool
+    protected function tryAddAdvancedAnswer(DefaultSudoku $sudoku): bool
     {
         if (UniqueRectangleMethod::tryAddAnswer($sudoku, $this->cachedPossibleAnswers)) {
             return true;
@@ -227,7 +227,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
      *
      * @return array<int>
      */
-    private function getPossibleAnswersForCell(SudokuInterface $sudoku, int $row, int $column): array
+    private function getPossibleAnswersForCell(DefaultSudoku $sudoku, int $row, int $column): array
     {
         if (null !== $sudoku->getAnswer($row, $column)) {
             // This cell is already answered.

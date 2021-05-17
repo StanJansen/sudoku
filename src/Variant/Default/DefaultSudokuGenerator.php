@@ -7,7 +7,6 @@ use Stanjan\Sudoku\Exception\SolverException;
 use Stanjan\Sudoku\Grid\Grid;
 use Stanjan\Sudoku\Grid\GridSize;
 use Stanjan\Sudoku\SudokuGeneratorInterface;
-use Stanjan\Sudoku\SudokuInterface;
 
 class DefaultSudokuGenerator implements SudokuGeneratorInterface
 {
@@ -37,7 +36,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generate(): SudokuInterface
+    public function generate(): DefaultSudoku
     {
         $sudoku = $this->createBaseSudoku();
 
