@@ -8,7 +8,7 @@ cache:
 before_script:
     - apk update && apk add wget libgit2-dev cmake git dpkg
     - wget https://raw.githubusercontent.com/php-opencv/php-opencv-packages/master/opencv_4.5.0_amd64.deb
-    - dpkg -i opencv_4.5.0_amd64.deb
+    - dpkg --add-architecture amd64 && dpkg -i opencv_4.5.0_amd64.deb
     - rm opencv_4.5.0_amd64.deb
     - git clone https://github.com/php-opencv/php-opencv.git
     - cd php-opencv
