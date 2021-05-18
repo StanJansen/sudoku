@@ -22,7 +22,7 @@ composer install
 ### OpenCV
 This library requires OpenCV to process images before applying OCR on them. Please follow the installation guide on https://github.com/php-opencv/php-opencv.
 ```
-apk update && apk install -y wget pkg-config cmake git php-dev
+apt-get update && apt-get install -y wget pkg-config cmake git php-dev
 wget https://raw.githubusercontent.com/php-opencv/php-opencv-packages/master/opencv_4.5.0_amd64.deb
 dpkg -i opencv_4.5.0_amd64.deb
 rm opencv_4.5.0_amd64.deb
