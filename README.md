@@ -33,6 +33,7 @@ phpize
 make && make install
 cd ../
 rm -rf php-opencv
+echo "extension=opencv.so" > /etc/php/8.0/cli/conf.d/opencv.ini
 ```
 
 ## Dev tools
