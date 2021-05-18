@@ -6,7 +6,7 @@ cache:
         - ./tools/php-cs-fixer/vendor/
 
 before_script:
-    - apk update && apk add autoconf libgit2-dev gcc git cmake opencv@edgecommunity
+    - apk update && apk add autoconf libgit2-dev gcc git cmake libc6-dev opencv@edgecommunity
     - git clone https://github.com/php-opencv/php-opencv.git
     - cd php-opencv
     - phpize
