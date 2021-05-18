@@ -7,7 +7,6 @@ cache:
 
 before_script:
     - apk update && apk add libgit2-dev git opencv@edgecommunity
-    - python3 -c "import cv2; print(cv2.__version__)"
     - git clone https://github.com/php-opencv/php-opencv.git
     - cd php-opencv
     - phpize
