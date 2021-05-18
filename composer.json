@@ -5,7 +5,10 @@
     "keywords": [
         "Sudoku",
         "Generator",
-        "Solver"
+        "Solver",
+        "Reader",
+        "OpenCV",
+        "OCR"
     ],
     "license": "MIT",
     "authors": [
@@ -24,6 +27,9 @@
     "require-dev": {
         "phpstan/phpstan": "^0.12.64",
         "phpunit/phpunit": "^9.5"
+    },
+    "suggest": {
+        "ext-curl": "Enables cURL for Guzzle"
     },
     "autoload": {
         "psr-4": {
