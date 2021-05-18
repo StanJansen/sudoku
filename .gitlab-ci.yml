@@ -6,7 +6,7 @@ cache:
         - ./tools/php-cs-fixer/vendor/
 
 before_script:
-    - apk update && apk add libgit2-dev git opencv
+    - apk update && apk add libgit2-dev git opencv=4.5.2-r0
     - python3 -c "import cv2; print(cv2.__version__)"
     - git clone https://github.com/php-opencv/php-opencv.git
     - cd php-opencv
