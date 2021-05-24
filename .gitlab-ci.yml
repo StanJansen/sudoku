@@ -11,7 +11,7 @@ before_script:
     - git clone https://github.com/php-opencv/php-opencv.git
     - cd php-opencv && phpize && ./configure --with-php-config=/usr/bin/php-config && make && make install
     - cd ../ && rm -rf php-opencv
-#    - echo "extension=opencv.so" > /etc/php/8.0/cli/conf.d/opencv.ini
+    - echo "extension=opencv.so" >> /opt/docker/etc/php/php.ini
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
     - composer install --working-dir=tools/php-cs-fixer --prefer-dist --no-ansi --no-interaction --no-progress
 
