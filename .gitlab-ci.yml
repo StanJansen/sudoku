@@ -14,6 +14,7 @@ before_script:
     - cd php-opencv && phpize && ./configure && make && make install
     - cd ../ && rm -rf php-opencv
     - echo "extension=opencv.so" >> /opt/docker/etc/php/php.ini
+    - strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
     - composer install --working-dir=tools/php-cs-fixer --prefer-dist --no-ansi --no-interaction --no-progress
 
