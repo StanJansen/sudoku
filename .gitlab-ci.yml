@@ -6,7 +6,7 @@ cache:
         - ./tools/php-cs-fixer/vendor/
 
 before_script:
-    - apt update && apt install -y wget pkg-config cmake git php-dev
+    - apt update && apt install -y wget pkg-config cmake git
     - wget https://raw.githubusercontent.com/php-opencv/php-opencv-packages/master/opencv_4.5.0_amd64.deb && dpkg -i opencv_4.5.0_amd64.deb && rm opencv_4.5.0_amd64.deb
     - git clone https://github.com/php-opencv/php-opencv.git
     - cd php-opencv && phpize && ./configure --with-php-config=/usr/bin/php-config && make && make install && cd ../ && rm -rf php-opencv
