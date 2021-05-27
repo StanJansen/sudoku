@@ -171,14 +171,18 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $solver = new DefaultSudokuSolver();
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
         try {
-            $solver->solve($sudoku);
+            $solver->solve($sudoku, $solvingMethods);
             throw new \LogicException('The solver did not fail for some reason.');
         } catch (SolverException) {
             // The solver should fail as not all cells can be answered, we only care about row 1 column 4 being answered.
         }
 
         $this->assertSame(4, $sudoku->getAnswer(1, 4));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -205,14 +209,18 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $solver = new DefaultSudokuSolver();
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
         try {
-            $solver->solve($sudoku);
+            $solver->solve($sudoku, $solvingMethods);
             throw new \LogicException('The solver did not fail for some reason.');
         } catch (SolverException) {
             // The solver should fail as not all cells can be answered, we only care about row 4 column 1 being answered.
         }
 
         $this->assertSame(4, $sudoku->getAnswer(4, 1));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -239,19 +247,23 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $solver = new DefaultSudokuSolver();
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
         try {
-            $solver->solve($sudoku);
+            $solver->solve($sudoku, $solvingMethods);
             throw new \LogicException('The solver did not fail for some reason.');
         } catch (SolverException) {
             // The solver should fail as not all cells can be answered, we only care about row 2 column 2 being answered.
         }
 
         $this->assertSame(4, $sudoku->getAnswer(2, 2));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
-    /**
-     * Test solving a cell by being the only cell in the row with a possible answer.
-     */
+//    /**
+//     * Test solving a cell by being the only cell in the row with a possible answer.
+//     */
     public function testSolvePossibleAnswersRow(): void
     {
         $gridSize = new GridSize(4, 4);
@@ -273,8 +285,11 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $solver = new DefaultSudokuSolver();
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
         try {
-            $solver->solve($sudoku);
+            $solver->solve($sudoku, $solvingMethods);
             throw new \LogicException('The solver did not fail for some reason.');
         } catch (SolverException) {
             // The solver should fail as not all cells can be answered, we only care about row 1 column 2 & 4 being answered.
@@ -282,6 +297,7 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $this->assertSame(2, $sudoku->getAnswer(1, 2));
         $this->assertSame(4, $sudoku->getAnswer(1, 4));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -308,8 +324,11 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $solver = new DefaultSudokuSolver();
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
         try {
-            $solver->solve($sudoku);
+            $solver->solve($sudoku, $solvingMethods);
             throw new \LogicException('The solver did not fail for some reason.');
         } catch (SolverException) {
             // The solver should fail as not all cells can be answered, we only care about column 1 row 2 & 4 being answered.
@@ -317,6 +336,7 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $this->assertSame(2, $sudoku->getAnswer(2, 1));
         $this->assertSame(4, $sudoku->getAnswer(4, 1));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -345,14 +365,18 @@ final class DefaultSudokuSolverTest extends TestCase
 
         $solver = new DefaultSudokuSolver();
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_ELIMINATION,
+        ];
         try {
-            $solver->solve($sudoku);
+            $solver->solve($sudoku, $solvingMethods);
             throw new \LogicException('The solver did not fail for some reason.');
         } catch (SolverException) {
             // The solver should fail as not all cells can be answered, we only care about row 2 column 1 being answered.
         }
 
         $this->assertSame(9, $sudoku->getAnswer(2, 1));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -382,11 +406,17 @@ final class DefaultSudokuSolverTest extends TestCase
             }
         }
 
+        $solvingMethods = [
+            SolvingMethod::UNIQUE_RECTANGLE,
+            SolvingMethod::SINGLE_ELIMINATION,
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
         $solver = new DefaultSudokuSolver();
-        $solver->solve($sudoku);
+        $solver->solve($sudoku, $solvingMethods);
 
         $this->assertSame(7, $sudoku->getAnswer(2, 9));
         $this->assertContains(SolvingMethod::UNIQUE_RECTANGLE, $sudoku->getUsedSolvingMethods());
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -416,11 +446,18 @@ final class DefaultSudokuSolverTest extends TestCase
             }
         }
 
+        $solvingMethods = [
+            SolvingMethod::X_WING,
+            SolvingMethod::SINGLE_ELIMINATION,
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+            SolvingMethod::PAIR_ELIMINATION,
+            SolvingMethod::COMBINED_PAIR_ELIMINATION,
+        ];
         $solver = new DefaultSudokuSolver();
-        $solver->solve($sudoku);
+        $solver->solve($sudoku, SolvingMethod::getAll());
 
         $this->assertSame(2, $sudoku->getAnswer(3, 9));
-        $this->assertContains(SolvingMethod::X_WING, $sudoku->getUsedSolvingMethods());
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -450,11 +487,17 @@ final class DefaultSudokuSolverTest extends TestCase
             }
         }
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_ELIMINATION,
+            SolvingMethod::PAIR_ELIMINATION,
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+            SolvingMethod::SWORDFISH,
+        ];
         $solver = new DefaultSudokuSolver();
-        $solver->solve($sudoku);
+        $solver->solve($sudoku, $solvingMethods);
 
         $this->assertSame(4, $sudoku->getAnswer(1, 1));
-        $this->assertContains(SolvingMethod::SWORDFISH, $sudoku->getUsedSolvingMethods());
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -484,10 +527,17 @@ final class DefaultSudokuSolverTest extends TestCase
             }
         }
 
+        $solvingMethods = [
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+            SolvingMethod::SINGLE_ELIMINATION,
+            SolvingMethod::PAIR_ELIMINATION,
+            SolvingMethod::SWORDFISH,
+            SolvingMethod::COMBINED_PAIR_ELIMINATION,
+        ];
         $solver = new DefaultSudokuSolver();
-        $solver->solve($sudoku);
+        $solver->solve($sudoku, $solvingMethods);
 
         $this->assertSame(5, $sudoku->getAnswer(1, 1));
-        $this->assertContains(SolvingMethod::SWORDFISH, $sudoku->getUsedSolvingMethods());
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 }
