@@ -38,4 +38,9 @@ interface SudokuInterface extends BelongsToSudokuVariantInterface
      * Determines if the sudoku has a solution for all cells.
      */
     public function hasAllSolutions(): bool;
+
+    /**
+     * Returns the difficulty rating of the sudoku, if it's unknown this will return null.
+     */
+    public function getDifficultyRating(): ?int;
 }

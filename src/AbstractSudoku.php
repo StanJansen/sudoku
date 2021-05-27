@@ -20,6 +20,11 @@ abstract class AbstractSudoku implements SudokuInterface
      */
     protected array $answers = [];
 
+    /**
+     * The total difficulty rating of this sudoku.
+     */
+    protected ?int $difficultyRating = null;
+
     public function __construct(
         protected Grid $grid,
     ) {
@@ -88,5 +93,34 @@ abstract class AbstractSudoku implements SudokuInterface
         }
 
         return $totalCount === $this->grid->getSize()->getRowCount() * $this->grid->getSize()->getColumnCount();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDifficultyRating(): ?int
+    {
+        return $this->difficultyRating;
+    }
+
+    /**
+     * Sets the difficulty rating of the sudoku.
+     */
+    public function setDifficultyRating(?int $difficultyRating): void
+    {
+        $this->difficultyRating = $difficultyRating;
+    }
+
+    /**
+     * Adds the given rating to the total difficulty rating.
+     */
+    public function addToDifficultyRating(int $difficultyRating): void
+    {
+        if ($this->difficultyRating === null) {
+            // This difficulty rating was still unknown, set it to zero.
+            $this->difficultyRating = 0;
+        }
+
+        $this->difficultyRating += $difficultyRating;
     }
 }
