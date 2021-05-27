@@ -35,9 +35,9 @@ interface SudokuInterface extends BelongsToSudokuVariantInterface
     public function getAnswer(int $row, int $column): ?int;
 
     /**
-     * Determines if the sudoku has a solution for all cells.
+     * Determines if the sudoku has an answer for all cells.
      */
-    public function hasAllSolutions(): bool;
+    public function isFullyAnswered(): bool;
 
     /**
      * Returns the difficulty rating of the sudoku, if it's unknown this will return null.

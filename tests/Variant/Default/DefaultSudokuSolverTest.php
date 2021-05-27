@@ -9,6 +9,7 @@ use Stanjan\Sudoku\Grid\GridSize;
 use Stanjan\Sudoku\Variant\Default\DefaultSudoku;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuSolver;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
+use Stanjan\Sudoku\Variant\Default\Solver\SolvingMethod;
 
 /**
  * @covers \Stanjan\Sudoku\Variant\Default\DefaultSudokuSolver
@@ -93,7 +94,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);
 
-        $this->assertTrue($sudoku->hasAllSolutions());
+        $this->assertTrue($sudoku->isFullyAnswered());
 
         foreach ($solutions as $row => $columns) {
             foreach ($columns as $column => $solution) {
@@ -137,7 +138,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);
 
-        $this->assertTrue($sudoku->hasAllSolutions());
+        $this->assertTrue($sudoku->isFullyAnswered());
 
         foreach ($solutions as $row => $columns) {
             foreach ($columns as $column => $solution) {
@@ -385,6 +386,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver->solve($sudoku);
 
         $this->assertSame(7, $sudoku->getAnswer(2, 9));
+        $this->assertContains(SolvingMethod::UNIQUE_RECTANGLE, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -418,6 +420,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver->solve($sudoku);
 
         $this->assertSame(2, $sudoku->getAnswer(3, 9));
+        $this->assertContains(SolvingMethod::X_WING, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -431,15 +434,15 @@ final class DefaultSudokuSolverTest extends TestCase
         $sudoku = new DefaultSudoku($grid);
 
         $answers = [
-            [null, 5, 7, 3, 6, null, 2, 8, 4],
-            [6, null, 4, 8, 2, 5, null, null, null],
-            [2, 8, null, 7, null, 4, 6, 5, null],
-            [null, 9, 2, 4, null, 6, null, null, null],
-            [3, 6, 1, 9, null, 7, null, 4, 2],
-            [null, 4, 5, 1, 3, 2, null, 9, 6],
-            [4, null, 6, 2, null, null, null, 7, 5],
-            [null, 2, null, 5, 7, null, 4, 6, null],
-            [5, 7, 8, 6, 4, null, 3, 2, null],
+            [null, null, 8, null, null, 9, null, null, null],
+            [3, null, null, null, 5, 7, null, null, 1],
+            [null, null, null, 1, null, null, null, null, 9],
+            [2, 3, null, null, null, null, null, 7, null],
+            [null, null, 5, 4, null, 6, 1, null, null],
+            [null, 6, null, null, null, null, null, 3, 8],
+            [9, null, null, null, null, 3, null, null, null],
+            [7, null, null, 8, 4, null, null, null, 3],
+            [null, null, null, 7, null, null, 6, null, null],
         ];
         foreach ($answers as $row => $columns) {
             foreach ($columns as $column => $answer) {
@@ -450,7 +453,8 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);
 
-        $this->assertSame(3, $sudoku->getAnswer(3, 9));
+        $this->assertSame(4, $sudoku->getAnswer(1, 1));
+        $this->assertContains(SolvingMethod::SWORDFISH, $sudoku->getUsedSolvingMethods());
     }
 
     /**
@@ -464,15 +468,15 @@ final class DefaultSudokuSolverTest extends TestCase
         $sudoku = new DefaultSudoku($grid);
 
         $answers = [
-            [5, null, 4, null, 3, null, 2, 6, null],
-            [7, 2, null, 4, 6, 9, 8, null, 5],
-            [8, null, 6, 5, 1, 2, null, 4, 7],
-            [6, 5, 2, 1, 9, 4, 7, 8, 3],
-            [4, 7, null, 3, null, null, null, 2, 6],
-            [null, null, null, 2, 7, 6, 4, 5, null],
-            [3, 4, null, null, null, null, 6, null, 2],
-            [2, 6, 7, 9, 4, null, 5, null, 8],
-            [null, null, 5, 6, 2, null, null, null, 4],
+            [null, 7, 9, null, null, 2, null, 3, null],
+            [null, null, null, 6, null, 3, null, null, null],
+            [null, null, null, null, 5, null, null, null, 8],
+            [7, 8, null, null, 4, null, 1, null, null],
+            [null, 4, null, null, null, null, null, 5, null],
+            [null, null, 3, null, 6, null, null, 7, 9],
+            [6, null, null, null, 1, null, null, null, null],
+            [null, null, null, 3, null, 7, null, null, null],
+            [null, 3, null, 8, null, null, 9, 1, null],
         ];
         foreach ($answers as $row => $columns) {
             foreach ($columns as $column => $answer) {
@@ -483,6 +487,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);
 
-        $this->assertSame(3, $sudoku->getAnswer(9, 7));
+        $this->assertSame(5, $sudoku->getAnswer(1, 1));
+        $this->assertContains(SolvingMethod::SWORDFISH, $sudoku->getUsedSolvingMethods());
     }
 }

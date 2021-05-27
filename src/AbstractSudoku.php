@@ -83,7 +83,7 @@ abstract class AbstractSudoku implements SudokuInterface
     /**
      * {@inheritdoc}
      */
-    public function hasAllSolutions(): bool
+    public function isFullyAnswered(): bool
     {
         $totalCount = 0;
 

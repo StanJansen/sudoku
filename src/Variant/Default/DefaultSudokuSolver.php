@@ -9,6 +9,7 @@ use Stanjan\Sudoku\Variant\Default\Solver\Method\SwordfishMethod;
 use Stanjan\Sudoku\Variant\Default\Solver\Method\UniqueRectangleMethod;
 use Stanjan\Sudoku\Variant\Default\Solver\Method\XWingMethod;
 use Stanjan\Sudoku\Variant\Default\Solver\PossibleAnswersCollection;
+use Stanjan\Sudoku\Variant\Default\Solver\SolvingMethod;
 
 class DefaultSudokuSolver implements SudokuSolverInterface
 {
@@ -42,7 +43,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         }
 
         // Keep adding solutions until the sudoku is fully answered or a SolverException is thrown.
-        while (!$sudoku->hasAllSolutions()) {
+        while (!$sudoku->isFullyAnswered()) {
             // Clear cached possible answers before adding a new answer.
             $this->cachedPossibleAnswers->clear();
 
@@ -106,8 +107,11 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         $gridSize = $sudoku->getGrid()->getSize();
 
         $possibleAnswers = $this->getPossibleAnswersForCell($sudoku, $row, $column);
+        $originalPossibleAnswers = $possibleAnswers;
+        $solvingMethod = SolvingMethod::SINGLE_POSSIBLE_ANSWER;
 
         // Check if it's the only field in its' row with a possible answer.
+        $hasRowPairElimination = false;
         if (count($possibleAnswers) > 1) {
             $possibleRowAnswers = $possibleAnswers;
             $mappedCellPossibleAnswers = [];
@@ -125,16 +129,22 @@ class DefaultSudokuSolver implements SudokuSolverInterface
                 if ($mappedCellPossibleAnswers[$possibleAnswersKey] === count($answers)) {
                     // It cannot be one of these answers as they are already shared over other cells in the same row, remove them.
                     $possibleAnswers = array_diff($possibleAnswers, $answers);
+                    $hasRowPairElimination = true;
                 }
             }
-            if (count($possibleRowAnswers) === 1) {
+            if (count($possibleAnswers) === 1) {
+                $solvingMethod = SolvingMethod::PAIR_ELIMINATION;
+            } elseif (count($possibleRowAnswers) === 1) {
                 // There is only one answer possible for this cell.
                 $possibleAnswers = $possibleRowAnswers;
+                $solvingMethod = SolvingMethod::SINGLE_ELIMINATION;
             }
         }
         // Check if it's the only field in its' column with a possible answer.
+        $hasColumnPairElimination = false;
         if (count($possibleAnswers) > 1) {
             $possibleColumnAnswers = $possibleAnswers;
+            $originalPossibleColumnAnswers = $originalPossibleAnswers;
             $mappedCellPossibleAnswers = [];
             for ($i = 1; $i <= $gridSize->getRowCount(); $i++) {
                 if ($i === $row || null !== $sudoku->getAnswer($i, $column)) {
@@ -147,19 +157,25 @@ class DefaultSudokuSolver implements SudokuSolverInterface
                 $possibleAnswersKey = implode(',', $answers);
                 $mappedCellPossibleAnswers[$possibleAnswersKey] = ($mappedCellPossibleAnswers[$possibleAnswersKey] ?? 0) + 1;
                 $possibleColumnAnswers = array_diff($possibleColumnAnswers, $answers);
+                $originalPossibleColumnAnswers = array_diff($originalPossibleColumnAnswers, $answers);
                 if ($mappedCellPossibleAnswers[$possibleAnswersKey] === count($answers)) {
                     // It cannot be one of these answers as they are already shared over other cells in the same row, remove them.
                     $possibleAnswers = array_diff($possibleAnswers, $answers);
+                    $hasColumnPairElimination = true;
                 }
             }
-            if (count($possibleColumnAnswers) === 1) {
+            if (count($possibleAnswers) === 1) {
+                $solvingMethod = $hasRowPairElimination ? SolvingMethod::COMBINED_PAIR_ELIMINATION : SolvingMethod::PAIR_ELIMINATION;
+            } elseif (count($possibleColumnAnswers) === 1) {
                 // There is only one answer possible for this cell.
                 $possibleAnswers = $possibleColumnAnswers;
+                $solvingMethod = $originalPossibleColumnAnswers === $possibleAnswers ? SolvingMethod::SINGLE_ELIMINATION : SolvingMethod::PAIR_ELIMINATION;
             }
         }
         // Check if it's the only field in its' subgrid with a possible answer.
         if (count($possibleAnswers) > 1) {
             $possibleSubGridAnswers = $possibleAnswers;
+            $originalPossibleSubGridAnswers = $originalPossibleAnswers;
             $mappedCellPossibleAnswers = [];
             $subGridSize = $sudoku->getGrid()->getSubGridSize();
             $rowOffset = $row - (($row - 1) % $subGridSize->getRowCount());
@@ -176,15 +192,19 @@ class DefaultSudokuSolver implements SudokuSolverInterface
                     $possibleAnswersKey = implode(',', $answers);
                     $mappedCellPossibleAnswers[$possibleAnswersKey] = ($mappedCellPossibleAnswers[$possibleAnswersKey] ?? 0) + 1;
                     $possibleSubGridAnswers = array_diff($possibleSubGridAnswers, $answers);
+                    $originalPossibleSubGridAnswers = array_diff($originalPossibleSubGridAnswers, $answers);
                     if ($mappedCellPossibleAnswers[$possibleAnswersKey] === count($answers)) {
                         // It cannot be one of these answers as they are already shared over other cells in the same row, remove them.
                         $possibleAnswers = array_diff($possibleAnswers, $answers);
                     }
                 }
             }
-            if (count($possibleSubGridAnswers) === 1) {
+            if (count($possibleAnswers) === 1) {
+                $solvingMethod = $hasRowPairElimination || $hasColumnPairElimination ? SolvingMethod::COMBINED_PAIR_ELIMINATION : SolvingMethod::PAIR_ELIMINATION;
+            } elseif (count($possibleSubGridAnswers) === 1) {
                 // There is only one answer possible for this cell.
                 $possibleAnswers = $possibleSubGridAnswers;
+                $solvingMethod = $originalPossibleSubGridAnswers === $possibleAnswers ? SolvingMethod::SINGLE_ELIMINATION : ($hasRowPairElimination && $hasColumnPairElimination ? SolvingMethod::COMBINED_PAIR_ELIMINATION : SolvingMethod::PAIR_ELIMINATION);
             }
         }
 
@@ -194,6 +214,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         // Check if the answer has been found.
         if (count($possibleAnswers) === 1) {
             $sudoku->setAnswer($row, $column, reset($possibleAnswers));
+            $sudoku->addSolvingMethodToDifficultyRating($solvingMethod);
             return;
         }
 
@@ -208,14 +229,17 @@ class DefaultSudokuSolver implements SudokuSolverInterface
     protected function tryAddAdvancedAnswer(DefaultSudoku $sudoku): bool
     {
         if (UniqueRectangleMethod::tryAddAnswer($sudoku, $this->cachedPossibleAnswers)) {
+            $sudoku->addSolvingMethodToDifficultyRating(SolvingMethod::UNIQUE_RECTANGLE);
             return true;
         }
 
         if (XWingMethod::tryAddAnswer($sudoku, $this->cachedPossibleAnswers)) {
+            $sudoku->addSolvingMethodToDifficultyRating(SolvingMethod::X_WING);
             return true;
         }
 
         if (SwordfishMethod::tryAddAnswer($sudoku, $this->cachedPossibleAnswers)) {
+            $sudoku->addSolvingMethodToDifficultyRating(SolvingMethod::SWORDFISH);
             return true;
         }
 
