@@ -7,6 +7,7 @@ use Stanjan\Sudoku\Grid\Grid;
 use Stanjan\Sudoku\Grid\GridSize;
 use Stanjan\Sudoku\Variant\Default\DefaultSudoku;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
+use Stanjan\Sudoku\Variant\Default\Solver\SolvingMethod;
 
 /**
  * @covers \Stanjan\Sudoku\Variant\Default\DefaultSudoku
@@ -78,5 +79,49 @@ final class DefaultSudokuTest extends TestCase
         $sudoku->setAnswer(1, 2, 1);
 
         $this->assertTrue($sudoku->isFullyAnswered());
+    }
+
+    public function testDifficultyRating(): void
+    {
+        $gridSize = new GridSize(1, 2);
+        $subGridSize = new GridSize(1, 2);
+
+        $grid = new Grid($gridSize, $subGridSize);
+
+        $sudoku = new DefaultSudoku($grid);
+
+        $this->assertNull($sudoku->getDifficultyRating());
+
+        $sudoku->addToDifficultyRating(10);
+        $this->assertSame(10, $sudoku->getDifficultyRating());
+
+        $sudoku->addToDifficultyRating(10);
+        $this->assertSame(20, $sudoku->getDifficultyRating());
+
+        $sudoku->setDifficultyRating(10);
+        $this->assertSame(10, $sudoku->getDifficultyRating());
+    }
+
+    public function testAddSolvingMethodToDifficultyRating(): void
+    {
+        $gridSize = new GridSize(1, 2);
+        $subGridSize = new GridSize(1, 2);
+
+        $grid = new Grid($gridSize, $subGridSize);
+
+        $sudoku = new DefaultSudoku($grid);
+
+        $this->assertNull($sudoku->getDifficultyRating());
+        $this->assertEmpty($sudoku->getUsedSolvingMethods());
+
+        $sudoku->addSolvingMethodToDifficultyRating(SolvingMethod::SWORDFISH);
+
+        $this->assertSame(SolvingMethod::getFirstMethodRating(SolvingMethod::SWORDFISH), $sudoku->getDifficultyRating());
+        $this->assertSame([SolvingMethod::SWORDFISH], $sudoku->getUsedSolvingMethods());
+
+        $sudoku->addSolvingMethodToDifficultyRating(SolvingMethod::SWORDFISH);
+
+        $this->assertSame(SolvingMethod::getFirstMethodRating(SolvingMethod::SWORDFISH) + SolvingMethod::getSubsequentMethodRating(SolvingMethod::SWORDFISH), $sudoku->getDifficultyRating());
+        $this->assertSame([SolvingMethod::SWORDFISH], $sudoku->getUsedSolvingMethods());
     }
 }
