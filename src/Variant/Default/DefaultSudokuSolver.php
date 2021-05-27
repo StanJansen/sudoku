@@ -42,7 +42,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
         }
 
         // Keep adding solutions until the sudoku is fully answered or a SolverException is thrown.
-        while (!$sudoku->isFullyAnswered()) {
+        while (!$sudoku->hasAllSolutions()) {
             // Clear cached possible answers before adding a new answer.
             $this->cachedPossibleAnswers->clear();
 

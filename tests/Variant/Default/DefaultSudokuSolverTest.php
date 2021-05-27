@@ -93,7 +93,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);
 
-        $this->assertTrue($sudoku->isFullyAnswered());
+        $this->assertTrue($sudoku->hasAllSolutions());
 
         foreach ($solutions as $row => $columns) {
             foreach ($columns as $column => $solution) {
@@ -137,7 +137,7 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver = new DefaultSudokuSolver();
         $solver->solve($sudoku);
 
-        $this->assertTrue($sudoku->isFullyAnswered());
+        $this->assertTrue($sudoku->hasAllSolutions());
 
         foreach ($solutions as $row => $columns) {
             foreach ($columns as $column => $solution) {

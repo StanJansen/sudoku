@@ -186,7 +186,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
      */
     protected function addRandomAnswer(DefaultSudoku $sudoku): void
     {
-        if ($sudoku->isFullyAnswered()) {
+        if ($sudoku->hasAllSolutions()) {
             throw new GeneratorException('Cannot add a random answer to a sudoku that has already been fully answered.');
         }
 
