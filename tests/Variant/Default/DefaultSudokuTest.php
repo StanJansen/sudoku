@@ -124,4 +124,20 @@ final class DefaultSudokuTest extends TestCase
         $this->assertSame(SolvingMethod::getFirstMethodRating(SolvingMethod::SWORDFISH) + SolvingMethod::getSubsequentMethodRating(SolvingMethod::SWORDFISH), $sudoku->getDifficultyRating());
         $this->assertSame([SolvingMethod::SWORDFISH], $sudoku->getUsedSolvingMethods());
     }
+
+    public function testSetUsedSolvingMethods(): void
+    {
+        $gridSize = new GridSize(1, 2);
+        $subGridSize = new GridSize(1, 2);
+
+        $grid = new Grid($gridSize, $subGridSize);
+
+        $sudoku = new DefaultSudoku($grid);
+
+        $this->assertEmpty($sudoku->getUsedSolvingMethods());
+
+        $sudoku->setUsedSolvingMethods(['test']);
+
+        $this->assertSame(['test'], $sudoku->getUsedSolvingMethods());
+    }
 }

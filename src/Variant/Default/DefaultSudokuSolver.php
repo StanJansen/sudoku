@@ -39,7 +39,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
     public function solve(SudokuInterface $sudoku, array $allowedSolvingMethods = []): void
     {
         // Set the base allowed solving methods.
-        if (empty($allowedSolvingMethods)) {
+        if (count($allowedSolvingMethods) === 0) {
             $allowedSolvingMethods = SolvingMethod::getAll();
         }
 
@@ -109,7 +109,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
     /**
      * Answers the cell of the given sudoku.
      *
-     * @param array<string> $allowedSolvingMethods The allowed solving methods
+     * @param array<string> $allowedSolvingMethods The allowed solving methods.
      *
      * @throws SolverException When the cell could not be answered.
      */
@@ -256,7 +256,7 @@ class DefaultSudokuSolver implements SudokuSolverInterface
     /**
      * Try adding an answer using advanced techniques.
      *
-     * @param array<string> $allowedSolvingMethods The allowed solving methods
+     * @param array<string> $allowedSolvingMethods The allowed solving methods.
      *
      * @return bool True when an answer could be added.
      */

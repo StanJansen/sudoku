@@ -7,6 +7,7 @@ use Stanjan\Sudoku\Exception\GeneratorException;
 use Stanjan\Sudoku\Variant\Default\DefaultSudoku;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuGenerator;
 use Stanjan\Sudoku\Variant\Default\DefaultSudokuVariant;
+use Stanjan\Sudoku\Variant\Default\Solver\SolvingMethod;
 
 /**
  * @covers \Stanjan\Sudoku\Variant\Default\DefaultSudokuGenerator
@@ -26,8 +27,8 @@ final class DefaultSudokuGeneratorTest extends TestCase
         $grid = $sudoku->getGrid();
         $gridSize = $grid->getSize();
         $subGridSize = $grid->getSubGridSize();
-        
-        $this->assertInstanceOf(DefaultSudoku::class, $sudoku);
+
+        $this->assertGreaterThan(count(SolvingMethod::getForDifficultyLevel(SolvingMethod::DIFFICULTY_EASY)), count($sudoku->getUsedSolvingMethods()));
 
         // Check the dimensions.
         $this->assertSame(9, $gridSize->getRowCount());
@@ -79,6 +80,17 @@ final class DefaultSudokuGeneratorTest extends TestCase
                 }
             }
         }
+    }
+
+    public function testGenerateEasy(): void
+    {
+        $generator = new DefaultSudokuGenerator();
+
+        $sudoku = $generator->generate();
+
+        $easySolvingMethods = SolvingMethod::getForDifficultyLevel(SolvingMethod::DIFFICULTY_EASY);
+        $usedSolvingMethods = $sudoku->getUsedSolvingMethods();
+        $this->assertSame(sort($easySolvingMethods), sort($usedSolvingMethods));
     }
     
     public function testGenerateOverSolutionsLimit(): void

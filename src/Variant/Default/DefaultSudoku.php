@@ -49,4 +49,14 @@ class DefaultSudoku extends AbstractSudoku
     {
         return $this->usedSolvingMethods;
     }
+
+    /**
+     * Sets all used solving methods.
+     *
+     * @param array<string> $methods
+     */
+    public function setUsedSolvingMethods(array $methods): void
+    {
+        $this->usedSolvingMethods = $methods;
+    }
 }

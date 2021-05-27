@@ -34,9 +34,11 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
     }
 
     /**
+     * @param array<string> $allowedSolvingMethods The allowed solving methods, if empty it will use all methods.
+     *
      * {@inheritdoc}
      */
-    public function generate(): DefaultSudoku
+    public function generate(array $allowedSolvingMethods = []): DefaultSudoku
     {
         $sudoku = $this->createBaseSudoku();
 
@@ -59,10 +61,10 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
         }
 
         // Set the base answers of the sudoku.
-        $this->setBaseAnswers($sudoku);
+        $this->setBaseAnswers($sudoku, $allowedSolvingMethods);
 
         // Clean up the answers of the sudoku.
-        $this->cleanAnswers($sudoku);
+        $this->cleanAnswers($sudoku, $allowedSolvingMethods);
 
         return $sudoku;
     }
@@ -152,8 +154,10 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
 
     /**
      * Sets the base answers required to be able to solve the sudoku.
+     *
+     * @param array<string> $allowedSolvingMethods The allowed solving methods.
      */
-    protected function setBaseAnswers(DefaultSudoku $sudoku): void
+    protected function setBaseAnswers(DefaultSudoku $sudoku, array $allowedSolvingMethods): void
     {
         // Keep adding a random answer until the sudoku can be solved.
         $gridSize = $sudoku->getGrid()->getSize();
@@ -166,7 +170,7 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
                 // Try to solve a clone of the sudoku so the answers won't all be set.
                 $sudokuClone = clone $sudoku;
                 try {
-                    $solver->solve($sudokuClone);
+                    $solver->solve($sudokuClone, $allowedSolvingMethods);
                     // The sudoku could be solved, do not add any more answers.
                     return;
                 } catch (SolverException) {
@@ -209,8 +213,10 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
 
     /**
      * Cleans answers from the sudoku that are not necessary.
+     *
+     * @param array<string> $allowedSolvingMethods The allowed solving methods.
      */
-    protected function cleanAnswers(DefaultSudoku $sudoku): void
+    protected function cleanAnswers(DefaultSudoku $sudoku, array $allowedSolvingMethods): void
     {
         $gridSize = $sudoku->getGrid()->getSize();
         $solver = new DefaultSudokuSolver();
@@ -234,9 +240,13 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
                 $sudokuClone->setAnswer($row, $column, null);
 
                 try {
-                    $solver->solve($sudokuClone);
+                    $solver->solve($sudokuClone, $allowedSolvingMethods);
                     // The sudoku could still be solved without the cell answer, remove it on the original sudoku too.
                     $sudoku->setAnswer($row, $column, null);
+                    
+                    // Keep track of the latest used difficulty rating and used solving methods.
+                    $sudoku->setDifficultyRating($sudokuClone->getDifficultyRating());
+                    $sudoku->setUsedSolvingMethods($sudokuClone->getUsedSolvingMethods());
                 } catch (SolverException) {
                     // The sudoku could not be solved anymore, do not remove this answer on the original sudoku.
                 }
