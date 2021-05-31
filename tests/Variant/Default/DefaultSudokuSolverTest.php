@@ -420,9 +420,9 @@ final class DefaultSudokuSolverTest extends TestCase
     }
 
     /**
-     * Test solving a cell by using the X-Wing method.
+     * Test solving a cell by using the X-Wing row method.
      */
-    public function testSolveXWing(): void
+    public function testSolveXWingRow(): void
     {
         $gridSize = new GridSize(9, 9);
         $subGridSize = new GridSize(3, 3);
@@ -457,6 +457,45 @@ final class DefaultSudokuSolverTest extends TestCase
         $solver->solve($sudoku, SolvingMethod::getAll());
 
         $this->assertSame(2, $sudoku->getAnswer(3, 9));
+        $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
+    }
+
+    /**
+     * Test solving a cell by using the X-Wing column method.
+     */
+    public function testSolveXWingColumn(): void
+    {
+        $gridSize = new GridSize(9, 9);
+        $subGridSize = new GridSize(3, 3);
+        $grid = new Grid($gridSize, $subGridSize);
+        $sudoku = new DefaultSudoku($grid);
+
+        $answers = [
+            [null, 9, null, 5, 3, 8, 7, 4, 6],
+            [null, 7, 3, 4, 6, 1, null, 9, null],
+            [4, 6, null, 9, 7, 2, null, null, 1],
+            [3, null, 4, 2, 9, 6, 1, null, 7],
+            [6, null, 9, 1, 5, 7, 4, null, 3],
+            [null, 1, 7, 3, 8, 4, 9, 6, null],
+            [7, null, null, 6, 1, 9, null, null, 4],
+            [null, 4, null, 8, 2, 3, 6, 7, null],
+            [null, 3, 6, 7, 4, 5, null, 1, null],
+        ];
+        foreach ($answers as $row => $columns) {
+            foreach ($columns as $column => $answer) {
+                $sudoku->setAnswer($row + 1, $column + 1, $answer);
+            }
+        }
+
+        $solvingMethods = [
+            SolvingMethod::X_WING,
+            SolvingMethod::PAIR_ELIMINATION,
+            SolvingMethod::SINGLE_POSSIBLE_ANSWER,
+        ];
+        $solver = new DefaultSudokuSolver();
+        $solver->solve($sudoku, SolvingMethod::getAll());
+
+        $this->assertSame(2, $sudoku->getAnswer(9, 7));
         $this->assertSame($solvingMethods, $sudoku->getUsedSolvingMethods());
     }
 
