@@ -40,11 +40,5 @@
         "psr-4": {
             "Stanjan\\Sudoku\\Tests\\": "tests"
         }
-    },
-    "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "sort-packages": true
     }
 }
