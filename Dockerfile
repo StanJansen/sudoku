@@ -1,7 +1,7 @@
 FROM phpdockerio/php80-cli:latest
 
 LABEL description="Docker image for PHP 8 with xDebug, Composer and OpenCV."
-LABEL maintainer="stanjan@live.nl"
+LABEL maintainer="stan@stanjan.nl"
 
 RUN apt-get update && apt-get install --yes --quiet --no-install-recommends \
     libzip-dev \
