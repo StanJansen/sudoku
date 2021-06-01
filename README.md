@@ -4,7 +4,7 @@ Stanjan/Sudoku
 This project uses logic to generate and solve sudoku's. It also uses OpenCV and OCR to read sudoku's from photo's.
 
 [![Latest version](https://img.shields.io/github/v/tag/stanjansen/sudoku?label=version&sort=semver)](//packagist.org/packages/stanjan/sudoku)
-[![License](https://img.shields.io/github/license/stanjansen/sudoku)](//packagist.org/packages/stanjan/sudoku)
+[![License](https://img.shields.io/github/license/stanjansen/sudoku)](https://gitlab.com/Stanjan/sudoku/-/blob/master/LICENSE)
 [![PHP dependency](https://img.shields.io/badge/php-%3E%3D8.0-8892BF)](https://gitlab.com/Stanjan/sudoku/-/blob/master/composer.json)
 [![Pipeline](https://gitlab.com/Stanjan/sudoku/badges/master/pipeline.svg)](https://gitlab.com/Stanjan/sudoku/-/commits/master)
 [![Coverage](https://gitlab.com/Stanjan/sudoku/badges/master/coverage.svg)](https://gitlab.com/Stanjan/sudoku/-/commits/master)
