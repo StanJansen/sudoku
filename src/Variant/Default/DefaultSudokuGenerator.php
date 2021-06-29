@@ -236,6 +236,9 @@ class DefaultSudokuGenerator implements SudokuGeneratorInterface
 
                 // Clone the sudoku to test so the original will not be altered in case of a fail.
                 $sudokuClone = clone $sudoku;
+                // Clean difficulty rating and used solving methods.
+                $sudokuClone->setDifficultyRating(0);
+                $sudokuClone->setUsedSolvingMethods([]);
                 // Remove the cell answer.
                 $sudokuClone->setAnswer($row, $column, null);
 
